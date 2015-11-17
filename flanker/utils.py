@@ -11,6 +11,7 @@ import chardet
 from flanker.mime.message import errors
 from functools import wraps
 
+from flanker.str_analysis import sta
 
 log = logging.getLogger(__name__)
 
@@ -22,6 +23,7 @@ def _guess_and_convert(value):
     Uses cchardet to guess the encoding and if guessing or decoding fails, falls
     back to chardet which is much slower.
     """
+    sta(value)
     try:
         return _guess_and_convert_with(value)
     except:
@@ -36,6 +38,7 @@ def _guess_and_convert_with(value, detector=cchardet):
 
     The detector is either chardet or cchardet module.
     """
+    sta(value)
     charset = detector.detect(value)
 
     if not charset["encoding"]:
@@ -50,6 +53,7 @@ def _guess_and_convert_with(value, detector=cchardet):
 
 
 def _make_unicode(value, charset=None):
+    # sta(value)  # OK {u'str': 49, u'str/a': 88, u'uc': 1, u'uc/a': 14}
     if isinstance(value, unicode):
         return value
 
@@ -70,6 +74,7 @@ def _make_unicode(value, charset=None):
 
 
 def to_unicode(value, charset=None):
+    # sta(value)  # OK {u'str': 49, u'str/a': 80}
     value = _make_unicode(value, charset)
     return unicode(value.encode("utf-8", "strict"), "utf-8", "strict")
 
@@ -81,6 +86,7 @@ def to_utf8(value, charset=None):
         'hi'
     '''
 
+    # sta(value)  # OK {u'str/a': 8, u'uc': 1, u'uc/a': 14}
     value = _make_unicode(value, charset)
 
     return value.encode("utf-8", "strict")
@@ -98,6 +104,7 @@ def is_pure_ascii(value):
         True
     '''
 
+    # sta(value)  # OK {u'str': 1, u'str/a': 8145}
     if value is None:
         return False
     if not isinstance(value, basestring):
@@ -111,6 +118,7 @@ def is_pure_ascii(value):
 
 
 def cleanup_display_name(name):
+    # sta(name)  # OK {u'uc': 84, u'uc/a': 12227}
     if isinstance(name, unicode):
         return name.strip(u''';,'\r\n ''')
     else:
@@ -118,6 +126,7 @@ def cleanup_display_name(name):
 
 
 def cleanup_email(email):
+    # sta(email)  # OK {u'str/a': 8246, u'uc/a': 5388}
     if isinstance(email, unicode):
         return email.strip(u"<>;, ")
     else:
@@ -125,6 +134,7 @@ def cleanup_email(email):
 
 
 def contains_control_chars(s):
+    # sta(s)  # OK {u'str/a': 12619, u'uc': 541, u'uc/a': 11496}
     if isinstance(s, str):
         s = s.decode('iso-8859-1')
     if CONTROL_CHAR_RE.match(s):

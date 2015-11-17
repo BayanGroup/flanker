@@ -15,6 +15,7 @@ if no suggestion exists.
 """
 
 import difflib
+from flanker.str_analysis import sta
 
 
 def suggest(word, cutoff=0.77):
@@ -22,6 +23,7 @@ def suggest(word, cutoff=0.77):
     Given a domain and a cutoff heuristic, suggest an alternative or return the
     original domain if no suggestion exists.
     """
+    # sta(word)  # OK {u'str/a': 1540},
     if word in LOOKUP_TABLE:
         return LOOKUP_TABLE[word]
 

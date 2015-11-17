@@ -2,6 +2,7 @@ from io import StringIO, BytesIO
 import re
 from flanker.addresslib.tokenizer import ATOM, WHITESPACE
 
+from flanker.str_analysis import sta, statype
 
 _RE_ATOM_PHRASE = re.compile(
     br'({atom}({whitespace}{atom})*)|^$'
@@ -15,6 +16,7 @@ def smart_quote(s):
     not an rfc2822 atom. That is probably a little bit excessive but we better
     be safe then sorry.
     """
+    # sta(s)  # OK {u'str/a': 131}
     if _contains_atoms_only(s):
         return s
 
@@ -27,6 +29,7 @@ def smart_unquote(s):
     quoted regions in there. If there are no quoted regions in the input string
     then output string is identical to the input string.
     """
+    # sta(s)  # OK {u'str/a': 4, u'uc': 109, u'uc/a': 88}
     if isinstance(s, unicode):
         quote_char = u'"'
         escape_char = u'\\'

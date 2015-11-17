@@ -83,6 +83,7 @@ from flanker.utils import contains_control_chars
 from flanker.utils import cleanup_display_name
 from flanker.utils import cleanup_email
 from flanker.utils import to_utf8
+from flanker.str_analysis import sta
 
 
 class _AddressParser(object):
@@ -389,6 +390,7 @@ class _AddressParser(object):
                 break
             wrds.append(wrd)
 
+        # sta(wrds)  # OK {u'list(str/a)': 6188, u'list(uc)': 1, u'list(uc/a)': 5346, u'list(uc/a, uc)': 60}
         concatenator = b'' if isinstance(self.stream, str) else u''
         return cleanup_display_name(concatenator.join(wrds))
 
@@ -500,6 +502,8 @@ class _AddressParser(object):
                 self.stream.position = start_pos
                 wrds.pop()
                 break
+
+        # sta(wrds)  # OK {u'list(str/a)': 687, u'list(uc/a)': 6, u'list(uc/a, uc)': 23}
 
         concatenator = b'' if isinstance(self.stream, str) else u''
         return cleanup_display_name(concatenator.join(wrds))

@@ -32,6 +32,8 @@
 import re
 from flanker.addresslib.tokenizer import TokenStream
 
+from flanker.str_analysis import sta
+
 HOTMAIL_PREFIX  = re.compile(br'''
                             [A-Za-z0-9]+
                             ''', re.MULTILINE | re.VERBOSE)
@@ -54,6 +56,7 @@ PERIODS         = re.compile(br'''
 
 
 def validate(localpart):
+    # sta(localpart) # OK {u'str/a': 316}
     # check string exists and not empty
     if not localpart:
         return False

@@ -41,6 +41,7 @@ import flanker.addresslib.validate
 
 from flanker.addresslib.parser import MAX_ADDRESS_LENGTH
 from flanker.utils import is_pure_ascii
+from flanker.str_analysis import sta, statype
 from flanker.utils import metrics_wrapper
 from flanker.mime.message.headers.encoding import encode_string
 from flanker.mime.message.headers.encodedword import mime_to_unicode
@@ -72,6 +73,7 @@ def parse(address, addr_spec_only=False, metrics=False):
         >>> print address.parse('foo')
         None
     """
+    # sta(address)  # OK {u'none': 1, u'str': 1, u'str/a': 3480, u'uc': 238, u'uc/a': 132}
     mtimes = {'parsing': 0}
 
     parser = flanker.addresslib.parser._AddressParser(False)
@@ -126,12 +128,16 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
         >>> address.parse_list('A <a@b>, D <d@e>, http://localhost')
         [A <a@b>, D <d@e>, http://localhost]
     """
+    # sta(address_list)  # OK {u"<type 'list'>": 1600, u'str/a': 1627, u'uc': 1}
     mtimes = {'parsing': 0}
     parser = flanker.addresslib.parser._AddressParser(strict)
 
     # if we have a list, transform it into a string first
     if isinstance(address_list, list):
+        # sta(address_list)  # OK {u'list()': 20, u"list(<class 'flanker.addresslib.address.EmailAddress'>)": 1574, u'list(str/a)': 5, u'list(str/a, uc)': 1}
+        # sta(_normalize_address_list(address_list))  # OK {u'list()': 20, u'list(uc/a)': 1579, u'list(uc/a, uc)': 1}
         address_list = u', '.join(_normalize_address_list(address_list))
+        #sta(address_list)  # OK {u'uc': 1, u'uc/a': 1599}
 
     # parse
     try:
@@ -171,6 +177,7 @@ def validate_address(addr_spec, metrics=False):
         >>> address.validate_address('user.1234@gmail.com')
         user.1234@gmail.com
     """
+    #sta(addr_spec)  # OK {u'str/a': 3039}
     mtimes = {'parsing': 0, 'mx_lookup': 0,
         'dns_lookup': 0, 'mx_conn':0 , 'custom_grammar':0}
 
@@ -187,6 +194,7 @@ def validate_address(addr_spec, metrics=False):
 
     # run parser against address
     bstart = time.time()
+    # sta(addr_parts)  # OK {u'list(str/a)': 3039}
     paddr = parse(b'@'.join(addr_parts), addr_spec_only=True)
     mtimes['parsing'] = time.time() - bstart
     if paddr is None:
@@ -231,6 +239,7 @@ def validate_list(addr_list, as_tuple=False, metrics=False):
         >>> address.validate_address_list('a@b, c@d, e@example.com', as_tuple=True)
         ([a@mailgun.com, c@mailgun.com], ['e@example.com'])
     """
+    # sta(addr_list)  # OK {u'str/a': 12}
     mtimes = {'parsing': 0, 'mx_lookup': 0,
         'dns_lookup': 0, 'mx_conn':0 , 'custom_grammar':0}
 
@@ -288,6 +297,7 @@ def validate_list(addr_list, as_tuple=False, metrics=False):
 
 
 def is_email(string):
+    # sta(string)  # OK {u'none': 1, u'str/a': 3}
     if parse(string, True):
         return True
     return False
@@ -349,6 +359,9 @@ class EmailAddress(Address):
     __slots__ = ['display_name', 'mailbox', 'hostname', 'address']
 
     def __init__(self, display_name, spec=None, parsed_name=None):
+        # sta(spec)  # OK {u'none': 13635, u'str/a': 132, u'uc/a': 33}
+        # sta(parsed_name)  # OK {u'none': 13604, u'uc': 60, u'uc/a': 136}
+        # sta(display_name)  # OK {u'none': 3, u'str/a': 8302, u'uc': 105, u'uc/a': 5390}
         if spec is None:
             spec = display_name
             display_name = None
@@ -371,12 +384,18 @@ class EmailAddress(Address):
         self.hostname = parts[1].lower()
         self.address = self.mailbox + b"@" + self.hostname
         self.addr_type = self.Type.Email
+        # sta(self.display_name)  # OK {u'uc': 213, u'uc/a': 13587}
+        # sta(self.address)  # OK {u'str/a': 13800}
+        # sta(self.hostname)  # OK {u'str/a': 13800}
+        # sta(self.mailbox)  # OK {u'str/a': 13800}
+
 
     def __repr__(self):
         """
         >>> repr(EmailAddress("John Smith", "john@smith.com"))
         'John Smith <john@smith.com>'
         """
+        # sta(self.full_spec())  # OK {}
         return self.full_spec()
 
     def __str__(self):
@@ -384,6 +403,7 @@ class EmailAddress(Address):
         >>> str(EmailAddress("boo@host.com"))
         'boo@host.com'
         """
+        # sta(self.address)  # OK {u'str/a': 1}
         return self.address
 
     @property
@@ -406,6 +426,7 @@ class EmailAddress(Address):
         if self.display_name:
             encoded_display_name = smart_quote(encode_string(
                 None, self.display_name, maxlinelen=MAX_ADDRESS_LENGTH))
+            # sta(encoded_display_name)  # OK {u'str/a': 113}
             return b'{0} <{1}>'.format(encoded_display_name, self.address)
         return b'{0}'.format(self.address)
 
@@ -479,12 +500,14 @@ class UrlAddress(Address):
 
     def __init__(self, spec):
         self.address = spec
+        # sta(self.address)  # OK {u'str': 1, u'str/a': 24}
         self.parse_result = urlparse(spec)
         self.addr_type = self.Type.Url
 
     @property
     def hostname(self):
         hostname = self.parse_result.hostname
+        # sta(hostname)  # OK {u'none': 1, u'str/a': 1}
         if hostname:
             return hostname.lower()
 
@@ -494,6 +517,7 @@ class UrlAddress(Address):
 
     @property
     def scheme(self):
+        # sta(self.parse_result.path)  # OK {u'str/a': 1}
         return self.parse_result.scheme
 
     @property
@@ -606,6 +630,7 @@ class AddressList(object):
         return [addr.address for addr in self.container]
 
     def __str__(self):
+        # sta(self.full_spec())  # OK {u'str/a': 2}
         return self.full_spec()
 
     @property
@@ -624,14 +649,18 @@ class AddressList(object):
 
 
 def _normalize_address_list(address_list):
+    # sta(address_list)  # OK {u"<type 'list'>": 3200}
     parts = []
 
     for addr in address_list:
         if isinstance(addr, Address):
             parts.append(addr.to_unicode())
+            # sta(addr.to_unicode())  # OK {u'uc/a': 9398}
         elif isinstance(addr, unicode):
             parts.append(addr)
+            # sta(addr)  # OK {u'uc': 2}
         elif isinstance(addr, str):
             parts.append(addr.decode('ascii'))
+            # sta(addr.decode('ascii'))  # OK {u'uc/a': 1156}
 
     return parts

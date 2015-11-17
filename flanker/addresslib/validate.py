@@ -41,6 +41,7 @@ import flanker.addresslib
 
 from flanker.addresslib import corrector
 from flanker.utils import metrics_wrapper
+from flanker.str_analysis import sta
 
 
 def suggest_alternate(addr_spec):
@@ -57,6 +58,7 @@ def suggest_alternate(addr_spec):
         >>> validate.suggest_alternate('john@gmail..com')
         'john@gmail.com'
     """
+    # sta(addr_spec)  # OK {u'str/a': 1540}
     # sanity check
     if addr_spec is None:
         return None
@@ -74,6 +76,7 @@ def suggest_alternate(addr_spec):
     if sugg_domain == addr_parts[-1]:
         return None
 
+    # sta((addr_parts[0], sugg_domain))  # OK {u'(str/a, str/a)': 744}
     return b'@'.join([addr_parts[0], sugg_domain])
 
 
@@ -81,6 +84,7 @@ def preparse_address(addr_spec):
     """
     Preparses email addresses. Used to handle odd behavior by ESPs.
     """
+    # sta(addr_spec)  # OK {u'str/a': 4579}
     # sanity check, ensure we have both local-part and domain
     parts = addr_spec.split(b'@')
     if len(parts) < 2:
@@ -99,6 +103,7 @@ def plugin_for_esp(mail_exchanger):
     to the flanker.addresslib.plugins directory then update the
     flanker.addresslib package to add it to the known list of custom grammars.
     """
+    # sta(mail_exchanger)  # OK {u'str/a': 2979}
     for grammar in flanker.addresslib.CUSTOM_GRAMMAR_LIST:
         if grammar[0].match(mail_exchanger):
             return grammar[1]
@@ -177,6 +182,7 @@ def lookup_domain(domain):
     package for more details.
     """
 
+    sta(domain)
     dns_lookup = flanker.addresslib.dns_lookup
 
     fqdn = domain if domain[-1] == '.' else ''.join([domain, '.'])

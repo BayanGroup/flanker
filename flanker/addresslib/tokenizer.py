@@ -91,16 +91,19 @@ class TokenStream(object):
     def __init__(self, stream):
         self.position = 0
         self.stream = stream
+        # sta(self.stream)  # OK {u'str/a': 6781, u'uc': 240, u'uc/a': 1711}
 
     def get_token(self, token, ngroup=None):
         """
         Get the next token from the stream and advance the stream. Token can
         be either a compiled regex or a string.
         """
+        # sta((token, self.stream)) # OK {u'(re/b-, str/a)': 101863, u'(re/b-, uc)': 3369, u'(re/b-, uc/a)': 65700, u'(re/uu, str/a)': 53086, u'(re/uu, uc)': 2305, u'(re/uu, uc/a)': 39106, u'(str/a, str/a)': 15648, u'(str/a, uc)': 436, u'(str/a, uc/a)': 10728}
         # match single character
         if isinstance(token, str) and len(token) == 1:
             if isinstance(self.stream, unicode):
                 token = token.decode('iso-8859-1')
+            # sta((token, self.stream)) # OK {u'(str/a, str/a)': 15648, u'(uc/a, uc)': 436, u'(uc/a, uc/a)': 10728}
             if self.peek() == token:
                 self.position += 1
                 return token
@@ -109,6 +112,7 @@ class TokenStream(object):
         if isinstance(token, unicode) and len(token) == 1:
             if isinstance(self.stream, str):
                 token = token.encode('iso-8859-1')
+            # sta((token, self.stream)) # OK {}
             if self.peek() == token:
                 self.position += 1
                 return token
@@ -116,12 +120,14 @@ class TokenStream(object):
 
         # do not match a unicode pattern against bytes stream
         if isinstance(token.pattern, unicode) and isinstance(self.stream, str):
+            # sta((token, self.stream)) # OK {u'(re/uu, str/a)': 53086}
             return None
 
         # convert bytes pattern to unicode when matching against a unicode stream
         if isinstance(token.pattern, str) and isinstance(self.stream, unicode):
             token = re.compile(token.pattern.decode('iso-8859-1'), token.flags | ASCII_FLAG)
 
+        # sta((token, self.stream)) # {u'(re/b-, str/a)': 101863, u'(re/u-, uc)': 3369, u'(re/u-, uc/a)': 65700, u'(re/uu, uc)': 2305, u'(re/uu, uc/a)': 39106}
         # match a pattern
         match = token.match(self.stream, self.position)
         if match:
@@ -171,6 +177,7 @@ class TokenStream(object):
         Peek at the stream to see what the next token is or peek for a
         specific token.
         """
+        # sta((token, self.stream)) # OK {u'(none, str/a)': 15648, u'(none, uc)': 436, u'(none, uc/a)': 10728, u'(re/b-, str/a)': 10240, u'(re/b-, uc)': 71, u'(re/b-, uc/a)': 10566, u'(re/uu, str/a)': 18890, u'(re/uu, uc)': 290, u'(re/uu, uc/a)': 15882}
         # peek at whats next in the stream
         if token is None:
             if self.position < len(self.stream):
@@ -181,12 +188,14 @@ class TokenStream(object):
         else:
             # do not match a unicode pattern against bytes stream
             if isinstance(token.pattern, unicode) and isinstance(self.stream, str):
+                # sta((token, self.stream)) # OK {u'(re/uu, str/a)': 18890}
                 return None
 
             # convert bytes pattern to unicode when matching against a unicode stream
             if isinstance(token.pattern, str) and isinstance(self.stream, unicode):
                 token = re.compile(token.pattern.decode('iso-8859-1'), token.flags)
 
+            # sta((token, self.stream)) # OK {u'(re/b-, str/a)': 10240, u'(re/u-, uc)': 71, u'(re/u-, uc/a)': 10566, u'(re/uu, uc)': 290, u'(re/uu, uc/a)': 15882}
             match = token.match(self.stream, self.position)
             if match:
                 return self.stream[match.start():match.end()]

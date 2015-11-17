@@ -31,6 +31,7 @@ import re
 from flanker.addresslib.tokenizer import TokenStream
 from flanker.addresslib.tokenizer import ATOM
 
+from flanker.str_analysis import sta
 
 GOOGLE_BASE  = re.compile(br'''
                         [A-Za-z0-9_\-'\.]+
@@ -62,6 +63,7 @@ PLUS        = re.compile(br'''
 
 
 def validate(localpart):
+    # sta(localpart) # OK {u'str/a': 410}
     # check string exists and not empty
     if not localpart:
         return False

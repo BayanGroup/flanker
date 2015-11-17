@@ -35,6 +35,8 @@
 import re
 from flanker.addresslib.tokenizer import TokenStream
 
+from flanker.str_analysis import sta
+
 ALPHA          = re.compile(br'''
                             [A-Za-z]+
                             ''', re.MULTILINE | re.VERBOSE)
@@ -62,6 +64,7 @@ UNDERSCORE    = re.compile(br'''
 
 
 def validate(localpart):
+    # sta(localpart) # OK {u'str/a': 284}
     # check string exists and not empty
     if not localpart:
         return False

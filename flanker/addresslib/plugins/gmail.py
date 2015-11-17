@@ -31,6 +31,7 @@ import re
 from flanker.addresslib.tokenizer import TokenStream
 from flanker.addresslib.tokenizer import ATOM
 
+from flanker.str_analysis import sta
 
 GMAIL_BASE = re.compile(br'''
                         [A-Za-z0-9\.]+
@@ -49,6 +50,7 @@ DOT        = re.compile(br'''
 
 
 def validate(localpart):
+    # sta(localpart) # OK {u'str/a': 298}
     # check string exists and not empty
     if not localpart:
         return False
