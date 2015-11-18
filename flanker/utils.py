@@ -2,16 +2,20 @@
 """
 Utility functions and classes used by flanker.
 """
+from __future__ import absolute_import
 import logging
 import re
 
 import cchardet
 import chardet
+import six
 
 from flanker.mime.message import errors
 from functools import wraps
 
 from flanker.str_analysis import sta
+from six.moves import map
+from six.moves import range
 
 log = logging.getLogger(__name__)
 
@@ -165,7 +169,7 @@ def metrics_wrapper():
 
 
 # allows, \t\n\v\f\r (0x09-0x0d)
-CONTROL_CHARS = u''.join(map(unichr, range(0, 9) + range(14, 32) + range(127, 160)))
+CONTROL_CHARS = u''.join(map(six.unichr, list(range(0, 9)) + list(range(14, 32)) + list(range(127, 160))))
 CONTROL_CHAR_RE = re.compile(u'[%s]' % re.escape(CONTROL_CHARS), re.UNICODE)
 
 
