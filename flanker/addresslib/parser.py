@@ -55,6 +55,7 @@ Additional limitations on email addresses:
        name and the (very generous) limit becomes 512 characters. Allow 1024
        mailboxes and the total limit on a mailbox-list is 524288 characters.
 """
+from __future__ import absolute_import
 
 import re
 import flanker.addresslib.address
@@ -84,6 +85,7 @@ from flanker.utils import cleanup_display_name
 from flanker.utils import cleanup_email
 from flanker.utils import to_utf8
 from flanker.str_analysis import sta
+import six
 
 
 class _AddressParser(object):
@@ -108,7 +110,7 @@ class _AddressParser(object):
         # sanity check
         if not stream:
             raise ParserException('No input provided to parser.')
-        if isinstance(stream, str) and not is_pure_ascii(stream):
+        if isinstance(stream, six.binary_type) and not is_pure_ascii(stream):
             raise ParserException('ASCII string contains non-ASCII chars.')
 
         # to avoid spinning here forever, limit address list length
@@ -131,7 +133,7 @@ class _AddressParser(object):
         # sanity check
         if not stream:
             raise ParserException('No input provided to parser.')
-        if isinstance(stream, str) and not is_pure_ascii(stream):
+        if isinstance(stream, six.binary_type) and not is_pure_ascii(stream):
             raise ParserException('ASCII string contains non-ASCII chars.')
 
         # to avoid spinning here forever, limit mailbox length
@@ -160,7 +162,7 @@ class _AddressParser(object):
         # sanity check
         if stream is None:
             raise ParserException('No input provided to parser.')
-        if isinstance(stream, str) and not is_pure_ascii(stream):
+        if isinstance(stream, six.binary_type) and not is_pure_ascii(stream):
             raise ParserException('ASCII string contains non-ASCII chars.')
 
         # to avoid spinning here forever, limit mailbox length
@@ -391,7 +393,7 @@ class _AddressParser(object):
             wrds.append(wrd)
 
         # sta(wrds)  # OK {u'list(str/a)': 6188, u'list(uc)': 1, u'list(uc/a)': 5346, u'list(uc/a, uc)': 60}
-        concatenator = b'' if isinstance(self.stream, str) else u''
+        concatenator = b'' if isinstance(self.stream, six.binary_type) else u''
         return cleanup_display_name(concatenator.join(wrds))
 
     def _angle_addr_rfc(self):
@@ -505,7 +507,7 @@ class _AddressParser(object):
 
         # sta(wrds)  # OK {u'list(str/a)': 687, u'list(uc/a)': 6, u'list(uc/a, uc)': 23}
 
-        concatenator = b'' if isinstance(self.stream, str) else u''
+        concatenator = b'' if isinstance(self.stream, six.binary_type) else u''
         return cleanup_display_name(concatenator.join(wrds))
 
     def _angle_addr_lax(self):
@@ -609,12 +611,12 @@ class _AddressParser(object):
 
         # unicode atom
         uwrd = self.stream.get_token(UNI_ATOM)
-        if uwrd and isinstance(uwrd, unicode) and not contains_control_chars(uwrd):
+        if uwrd and isinstance(uwrd, six.text_type) and not contains_control_chars(uwrd):
             return uwrd
 
         # unicode qstr
         uwrd = self.stream.get_token(UNI_QSTR, 'qstr')
-        if uwrd and isinstance(uwrd, unicode) and not contains_control_chars(uwrd):
+        if uwrd and isinstance(uwrd, six.text_type) and not contains_control_chars(uwrd):
             return u'"{0}"'.format(encode_string(None, uwrd))
 
         # rollback

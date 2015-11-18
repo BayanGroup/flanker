@@ -27,6 +27,7 @@
         1. All characters prefixing the plus symbol (+) must be between 1-64 characters.
 
 '''
+from __future__ import absolute_import
 import re
 from flanker.addresslib.tokenizer import TokenStream
 from flanker.addresslib.tokenizer import ATOM

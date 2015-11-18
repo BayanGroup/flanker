@@ -33,6 +33,7 @@ EmailAddress or UrlAddress in flanker.addresslib.address.
 
 See the parser.py module for implementation details of the parser.
 """
+from __future__ import absolute_import
 
 import time
 import flanker.addresslib.parser
@@ -46,6 +47,7 @@ from flanker.utils import metrics_wrapper
 from flanker.mime.message.headers.encoding import encode_string
 from flanker.mime.message.headers.encodedword import mime_to_unicode
 from urlparse import urlparse
+import six
 
 
 @metrics_wrapper()
@@ -288,7 +290,7 @@ def validate_list(addr_list, as_tuple=False, metrics=False):
             ulist.append(unpar)
 
         # update all the metrics
-        for k, v in metrics.iteritems():
+        for k, v in six.iteritems(metrics):
             metrics[k] += v
 
     if as_tuple:
@@ -368,7 +370,7 @@ class EmailAddress(Address):
 
         assert(spec)
 
-        spec = spec if isinstance(spec, str) else spec.encode('ascii')
+        spec = spec if isinstance(spec, six.binary_type) else spec.encode('ascii')
 
         if parsed_name:
             self.display_name = smart_unquote(mime_to_unicode(parsed_name))
@@ -377,7 +379,7 @@ class EmailAddress(Address):
         else:
             self.display_name = u''
 
-        self.display_name = self.display_name if isinstance(self.display_name, unicode) else self.display_name.decode('ascii')
+        self.display_name = self.display_name if isinstance(self.display_name, six.text_type) else self.display_name.decode('ascii')
 
         parts = spec.rsplit(b'@', 1)
         self.mailbox = parts[0]
@@ -446,7 +448,7 @@ class EmailAddress(Address):
         Allows comparison of two addresses.
         """
         if other:
-            if isinstance(other, basestring):
+            if isinstance(other, six.string_types):
                 other = parse(other)
                 if not other:
                     return False
@@ -531,7 +533,7 @@ class UrlAddress(Address):
         return self.address if isinstance(self.address, bytes) else self.address.encode('idna')
 
     def to_unicode(self):
-        return self.address if isinstance(self.address, unicode) else self.address.decode('idna')
+        return self.address if isinstance(self.address, six.text_type) else self.address.decode('idna')
 
     def __repr__(self):
         return self.address
@@ -539,7 +541,7 @@ class UrlAddress(Address):
     def __eq__(self, other):
         "Allows comparison of two URLs"
         if other:
-            if not isinstance(other, basestring):
+            if not isinstance(other, six.string_types):
                 other = other.address
             return self.address == other
 
@@ -656,10 +658,10 @@ def _normalize_address_list(address_list):
         if isinstance(addr, Address):
             parts.append(addr.to_unicode())
             # sta(addr.to_unicode())  # OK {u'uc/a': 9398}
-        elif isinstance(addr, unicode):
+        elif isinstance(addr, six.text_type):
             parts.append(addr)
             # sta(addr)  # OK {u'uc': 2}
-        elif isinstance(addr, str):
+        elif isinstance(addr, six.binary_type):
             parts.append(addr.decode('ascii'))
             # sta(addr.decode('ascii'))  # OK {u'uc/a': 1156}
 

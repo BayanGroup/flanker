@@ -9,6 +9,7 @@ used to parse email addresses and urls.
 To override the default DNS lookup library or MX Cache, use the
 set_dns_lookup and set_mx_cache methods. For more details, see the User Manual.
 '''
+from __future__ import absolute_import
 import re
 
 try:

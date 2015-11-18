@@ -1,5 +1,7 @@
+from __future__ import absolute_import
 import collections
 import dnsq
+import six
 
 
 class DNSLookup(collections.MutableMapping):
@@ -11,7 +13,7 @@ class DNSLookup(collections.MutableMapping):
     def __getitem__(self, key):
         try:
             # dnsq accepts native python strs (bytes in python 2, unicode in python 3)
-            if isinstance('', unicode) and isinstance(key, str):
+            if isinstance('', six.text_type) and isinstance(key, six.binary_type):
                 key = key.decode('iso-8859-1')
             return dnsq.mx_hosts_for(key)
         except:

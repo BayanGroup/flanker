@@ -6,9 +6,11 @@ TokenStream can be used to consume tokens, peek ahead, and synchonize to a
 delimiter token. The tokens that the token stream operates on are either
 compiled regular expressions or strings.
 """
+from __future__ import absolute_import
 
 import re
 from flanker.addresslib import ASCII_FLAG
+import six
 
 
 LBRACKET   = b'<'
@@ -28,7 +30,7 @@ WHITESPACE = re.compile(br'''
                         (\ |\t)+                                # whitespace
                         ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)
 
-UNI_WHITE  = re.compile(ur'''
+UNI_WHITE  = re.compile(u'''
                         [
                             \u0020\u00a0\u1680\u180e
                             \u2000-\u200a
@@ -49,11 +51,11 @@ DOT_ATOM   = re.compile(br'''
                         (\.[A-Za-z0-9!#$%&'*+\-/=?^_`{|}~]+)*   # (dot atext)*
                         ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)
 
-UNI_ATOM = re.compile(ur'''
+UNI_ATOM = re.compile(u'''
                         ([^\s<>;,"]+)
                         ''', re.MULTILINE | re.VERBOSE | re.UNICODE)
 
-UNI_QSTR   = re.compile(ur'''
+UNI_QSTR   = re.compile(u'''
                         "
                         (?P<qstr>([^"]+))
                         "
@@ -74,7 +76,7 @@ URL        = re.compile(br'''
                         [^\s<>{}|\^~\[\]`;,]+
                         ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)
 
-UNI_URL        = re.compile(ur'''
+UNI_URL        = re.compile(u'''
                         (?:http|https)://
                         [^\s<>{}|\^~\[\]`;,]+
                         ''', re.MULTILINE | re.VERBOSE | re.UNICODE)
@@ -100,8 +102,8 @@ class TokenStream(object):
         """
         # sta((token, self.stream)) # OK {u'(re/b-, str/a)': 101863, u'(re/b-, uc)': 3369, u'(re/b-, uc/a)': 65700, u'(re/uu, str/a)': 53086, u'(re/uu, uc)': 2305, u'(re/uu, uc/a)': 39106, u'(str/a, str/a)': 15648, u'(str/a, uc)': 436, u'(str/a, uc/a)': 10728}
         # match single character
-        if isinstance(token, str) and len(token) == 1:
-            if isinstance(self.stream, unicode):
+        if isinstance(token, six.binary_type) and len(token) == 1:
+            if isinstance(self.stream, six.text_type):
                 token = token.decode('iso-8859-1')
             # sta((token, self.stream)) # OK {u'(str/a, str/a)': 15648, u'(uc/a, uc)': 436, u'(uc/a, uc/a)': 10728}
             if self.peek() == token:
@@ -109,8 +111,8 @@ class TokenStream(object):
                 return token
             return None
 
-        if isinstance(token, unicode) and len(token) == 1:
-            if isinstance(self.stream, str):
+        if isinstance(token, six.text_type) and len(token) == 1:
+            if isinstance(self.stream, six.binary_type):
                 token = token.encode('iso-8859-1')
             # sta((token, self.stream)) # OK {}
             if self.peek() == token:
@@ -119,12 +121,12 @@ class TokenStream(object):
             return None
 
         # do not match a unicode pattern against bytes stream
-        if isinstance(token.pattern, unicode) and isinstance(self.stream, str):
+        if isinstance(token.pattern, six.text_type) and isinstance(self.stream, six.binary_type):
             # sta((token, self.stream)) # OK {u'(re/uu, str/a)': 53086}
             return None
 
         # convert bytes pattern to unicode when matching against a unicode stream
-        if isinstance(token.pattern, str) and isinstance(self.stream, unicode):
+        if isinstance(token.pattern, six.binary_type) and isinstance(self.stream, six.text_type):
             token = re.compile(token.pattern.decode('iso-8859-1'), token.flags | ASCII_FLAG)
 
         # sta((token, self.stream)) # {u'(re/b-, str/a)': 101863, u'(re/u-, uc)': 3369, u'(re/u-, uc/a)': 65700, u'(re/uu, uc)': 2305, u'(re/uu, uc/a)': 39106}
@@ -187,12 +189,12 @@ class TokenStream(object):
         # peek for a specific token
         else:
             # do not match a unicode pattern against bytes stream
-            if isinstance(token.pattern, unicode) and isinstance(self.stream, str):
+            if isinstance(token.pattern, six.text_type) and isinstance(self.stream, six.binary_type):
                 # sta((token, self.stream)) # OK {u'(re/uu, str/a)': 18890}
                 return None
 
             # convert bytes pattern to unicode when matching against a unicode stream
-            if isinstance(token.pattern, str) and isinstance(self.stream, unicode):
+            if isinstance(token.pattern, six.binary_type) and isinstance(self.stream, six.text_type):
                 token = re.compile(token.pattern.decode('iso-8859-1'), token.flags)
 
             # sta((token, self.stream)) # OK {u'(re/b-, str/a)': 10240, u'(re/u-, uc)': 71, u'(re/u-, uc/a)': 10566, u'(re/uu, uc)': 290, u'(re/uu, uc/a)': 15882}

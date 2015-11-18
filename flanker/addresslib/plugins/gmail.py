@@ -27,6 +27,7 @@
         alphanum         ->      alpha | num
         dot              ->      .
 '''
+from __future__ import absolute_import
 import re
 from flanker.addresslib.tokenizer import TokenStream
 from flanker.addresslib.tokenizer import ATOM

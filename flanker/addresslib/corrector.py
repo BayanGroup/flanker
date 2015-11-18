@@ -13,6 +13,7 @@ if no suggestion exists.
 
 [1] http://xlinux.nist.gov/dads/HTML/ratcliffObershelp.html
 """
+from __future__ import absolute_import
 
 import difflib
 from flanker.str_analysis import sta

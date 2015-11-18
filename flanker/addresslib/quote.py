@@ -1,8 +1,10 @@
+from __future__ import absolute_import
 from io import StringIO, BytesIO
 import re
 from flanker.addresslib.tokenizer import ATOM, WHITESPACE
 
 from flanker.str_analysis import sta, statype
+import six
 
 _RE_ATOM_PHRASE = re.compile(
     br'({atom}({whitespace}{atom})*)|^$'
@@ -30,7 +32,7 @@ def smart_unquote(s):
     then output string is identical to the input string.
     """
     # sta(s)  # OK {u'str/a': 4, u'uc': 109, u'uc/a': 88}
-    if isinstance(s, unicode):
+    if isinstance(s, six.text_type):
         quote_char = u'"'
         escape_char = u'\\'
         unquoted = StringIO()

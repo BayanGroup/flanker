@@ -18,6 +18,7 @@
         local-part  ->  alpha { [ dot | underscore ] ( alpha | num ) }
 
 '''
+from __future__ import absolute_import
 import re
 from flanker.addresslib.tokenizer import TokenStream
 

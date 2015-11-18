@@ -32,6 +32,7 @@ Public Functions in flanker.addresslib.validate module:
 
       Attempts to connect to a given mail exchanger to see if it exists.
 """
+from __future__ import absolute_import
 
 import re
 import redis

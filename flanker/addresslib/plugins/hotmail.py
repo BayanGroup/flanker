@@ -29,6 +29,7 @@
            less than 1 characters.
 
 '''
+from __future__ import absolute_import
 import re
 from flanker.addresslib.tokenizer import TokenStream
 
