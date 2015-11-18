@@ -75,13 +75,13 @@ def test_canonicalization():
         os.path.dirname(__file__), "fixtures", "messages", "dkim", "email.*"
     )
     for path in glob.glob(path):
-        with open(path) as f:
+        with open(path, 'rb') as f:
             contents = f.read()
-        with open(path.replace("email", "nofws.expected")) as f:
+        with open(path.replace("email", "nofws.expected"), 'rb') as f:
             nofws_contents = f.read()
-        with open(path.replace("email", "simple.expected")) as f:
+        with open(path.replace("email", "simple.expected"), 'rb') as f:
             simple_contents = f.read()
-        with open(path.replace("email", "relaxed.expected")) as f:
+        with open(path.replace("email", "relaxed.expected"), 'rb') as f:
             relaxed_contents = f.read()
 
         assert_equal(
