@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import email.message
 import flanker.addresslib.address
 import logging
@@ -6,6 +7,7 @@ from collections import deque
 from email.header import Header
 from flanker.mime.message.headers import parametrized
 from flanker.utils import to_utf8
+import six
 
 log = logging.getLogger(__name__)
 
@@ -65,7 +67,7 @@ def encode_address_header(name, value):
 
 def encode_parametrized(key, value, params):
     if params:
-        params = [encode_param(key, n, v) for n, v in params.iteritems()]
+        params = [encode_param(key, n, v) for n, v in six.iteritems(params)]
         return value + "; " + ("; ".join(params))
     else:
         return value

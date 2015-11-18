@@ -1,9 +1,11 @@
+from __future__ import absolute_import
 from webob.multidict import MultiDict
 
 from flanker.mime.message.headers import encodedword
 from flanker.mime.message.headers.parsing import normalize, parse_stream
 from flanker.mime.message.headers.encoding import to_mime
 from flanker.mime.message.errors import EncodingError
+import six
 
 
 class MimeHeaders(object):
@@ -63,7 +65,7 @@ class MimeHeaders(object):
         It remembers the order in which they were added, what
         is really important
         """
-        return self._v.keys()
+        return list(self._v.keys())
 
     def transform(self, fn, decode=False):
         """Accepts a function, getting a key, val and returning
@@ -88,17 +90,17 @@ class MimeHeaders(object):
         """
         Returns header,val pairs in the preserved order.
         """
-        return list(self.iteritems())
+        return list(six.iteritems(self))
 
     def iteritems(self, raw=False):
         """
         Returns iterator header,val pairs in the preserved order.
         """
         if raw:
-            return self._v.iteritems()
+            return six.iteritems(self._v)
 
         return iter([(x[0], encodedword.decode(x[1]))
-                     for x in self._v.iteritems()])
+                     for x in six.iteritems(self._v)])
 
     def get(self, key, default=None):
         """

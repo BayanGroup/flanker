@@ -59,6 +59,7 @@ if msg.content_type.is_message_container():
 
 read more in package details.
 """
+from __future__ import absolute_import
 from flanker.mime.message.errors import DecodingError, EncodingError, MimeError
 from flanker.mime import create
 from flanker.mime.create import from_string

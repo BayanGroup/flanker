@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import logging
 import email
 from webob.multidict import MultiDict
@@ -119,7 +120,7 @@ class FallbackHeaders(MimeHeaders):
 
     def __init__(self, message):
         MimeHeaders.__init__(self, [(k, _try_decode(k, v))
-                                    for k, v in message.items()])
+                                    for k, v in list(message.items())])
         self._m = message
 
     def __setitem__(self, key, value):
@@ -148,7 +149,7 @@ class FallbackHeaders(MimeHeaders):
                 changed[0] = True
             return new_key, new_value
 
-        transformed_headers = [wrapped_func(k, v) for k, v in self._m.items()]
+        transformed_headers = [wrapped_func(k, v) for k, v in list(self._m.items())]
         if changed[0]:
             self._m._headers = transformed_headers
             self._v = MultiDict([(normalize(k), remove_newlines(v))

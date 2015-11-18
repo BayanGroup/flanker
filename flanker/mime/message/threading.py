@@ -1,7 +1,9 @@
 """
 Implements message threading
 """
+from __future__ import absolute_import
 from email.utils import make_msgid
+import six
 
 
 def build_thread(messages):
@@ -24,7 +26,7 @@ def build_table(messages):
 
 def build_root_set(table):
     root = Container()
-    for container in table.itervalues():
+    for container in six.itervalues(table):
         if not container.parent:
             root.add_child(container)
     return root

@@ -1,6 +1,7 @@
 """ Useful wrappers for headers with parameters,
 provide some convenience access methods
 """
+from __future__ import absolute_import
 
 import regex as re
 import flanker.addresslib.address

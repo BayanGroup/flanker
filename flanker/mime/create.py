@@ -1,4 +1,5 @@
 """ This package is a set of utilities and methods for building mime messages """
+from __future__ import absolute_import
 
 import uuid
 from flanker.mime import DecodingError

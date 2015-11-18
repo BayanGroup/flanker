@@ -1,6 +1,7 @@
 """Module that is responsible for parsing parameterized header values
 encoded in accordance to rfc2231 (new style) or rfc1342 (old style)
 """
+from __future__ import absolute_import
 import urllib
 import regex as re
 from flanker.mime.message.headers import encodedword

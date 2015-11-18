@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import regex as re
 from flanker.mime.message import errors
 from flanker.utils import to_utf8, to_unicode

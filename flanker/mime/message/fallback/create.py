@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import email
 from flanker.mime.message.fallback.part import FallbackMimePart
 

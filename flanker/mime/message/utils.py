@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from cStringIO import StringIO
 from contextlib import closing
 from email.generator import Generator
