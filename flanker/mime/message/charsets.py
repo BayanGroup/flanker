@@ -6,7 +6,7 @@ from flanker.str_analysis import sta
 
 
 def convert_to_unicode(charset, value):
-    sta(value)  # {u'str': 175, u'str/a': 467, u'uc': 76, u'uc/a': 199}
+    # sta(value)  # OK {u'str': 175, u'str/a': 467, u'uc': 76, u'uc/a': 199}
     #in case of unicode we have nothing to do
     if isinstance(value, unicode):
         return value

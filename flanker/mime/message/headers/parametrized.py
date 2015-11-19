@@ -35,7 +35,7 @@ def fix_content_type(value, default=None):
     """Content-Type value may be badly broken"""
     if not value:
         return default or ('text', 'plain')
-    sta(value)
+    sta(value)  # {u'str/a': 2985}
     values = value.lower().split("/")
     if len(values) >= 2:
         return values[:2]
@@ -54,7 +54,7 @@ def split(header):
     becomes:
          ["multipart/mixed", "boundary=hal_9000"]
     """
-    sta(header)
+    sta(header)  # {u'str': 1, u'str/a': 3170}
     match = headerValue.match(header)
     if not match:
         return (None, None)
@@ -193,7 +193,7 @@ def decode_charset(parameter):
     "us-ascii'en'This%20is%20even%20more%20%2A%2A%2Afun%2A%2A%2A%20"
     to unicode """
     v = get_value(parameter)
-    sta(v)
+    sta(v)  # {u'str/a': 2}
     parts = v.split("'", 2)
     if len(parts) != 3:
         return v

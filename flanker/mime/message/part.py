@@ -131,7 +131,7 @@ def _guess_type(filename):
     that heuristic content type checker get wrong.
     """
 
-    sta(filename)  # {u'str/a': 8, u'uc/a': 3}
+    # sta(filename)  # OK {u'str/a': 8, u'uc/a': 3}
     if filename.endswith(".bz2"):
         return ContentType("application", "x-bzip2")
 
@@ -399,6 +399,7 @@ class RichPartMixin(object):
         return self.bounce.score > probability
 
     def __str__(self):
+        sta(self.content_type)  # {u"(str/a, <type 'dict'>)": 6}
         return "({0})".format(self.content_type)
 
 
@@ -570,9 +571,12 @@ class MimePart(RichPartMixin):
             if ctype.is_multipart():
                 boundary = ctype.get_boundary_line()
                 for index, part in enumerate(self.parts):
+                    sta(boundary)  # {u'str/a': 141}
+                    sta(part)  # {u"<class 'flanker.mime.message.part.MimePart'>": 141}
                     out.write(
                         (CRLF if index != 0 else "") + boundary + CRLF)
                     part.to_stream(out)
+                sta(ctype.get_boundary_line(final=True))  # {u'str/a': 40}
                 out.write(CRLF + ctype.get_boundary_line(final=True) + CRLF)
 
             elif ctype.is_message_container():
@@ -599,6 +603,7 @@ def decode_transfer_encoding(encoding, body):
         return body
 
 def decode_charset(ctype, body):
+    sta(ctype.main)  # {u'str/a': 61}
     if ctype.main != 'text':
         return body
 
@@ -608,6 +613,7 @@ def decode_charset(ctype, body):
     # for text/html unicode bodies make sure to replace
     # the whitespace (0xA0) with &nbsp; Outlook is reported to
     # have a bug there
+    sta(ctype.sub)  # {u'str/a': 55}
     if ctype.sub =='html' and charset == 'utf-8':
         # Outlook bug
         body = body.replace(u'\xa0', u'&nbsp;')
@@ -676,7 +682,7 @@ def has_long_lines(text, max_line_len=599):
     '''
     if not text:
         return False
-    sta(text)  # {u'str/a': 28}
+    sta(text)  # OK {u'str/a': 28}
     for line in text.splitlines():
         if len(line) >= max_line_len:
             return True

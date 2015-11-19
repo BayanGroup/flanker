@@ -12,6 +12,7 @@ MAX_LINE_LENGTH = 10000
 
 
 def normalize(header):
+    sta(header)
     return string.capwords(header.lower(), '-')
 
 
@@ -51,7 +52,7 @@ def parse_header_value(name, val):
 
 
 def is_empty(line):
-    sta(line)
+    sta(line)  # {u'str': 7, u'str/a': 5546}
     return line in ('\r\n', '\r', '\n')
 
 
@@ -60,9 +61,10 @@ RE_HEADER = regex.compile(r'^(From |[\041-\071\073-\176]+:|[\t ])')
 
 def split(fp):
     """Read lines with headers until the start of body"""
-    sta(fp)
+    sta(fp)  # {u"<type 'cStringIO.StringI'>": 192}
     lines = deque()
     for line in fp:
+        sta(line)  # {u'str': 7, u'str/a': 5156}
         if len(line) > MAX_LINE_LENGTH:
             raise DecodingError(
                 "Line is too long: {0}".format(len(line)))
@@ -83,10 +85,11 @@ def split(fp):
 
 
 def unfold(lines):
-    sta(lines)
+    sta(lines)  # {u'deque()': 12, u'deque(str)': 1, u'deque(str/a)': 174, u'deque(str/a, str)': 4}
     headers = deque()
 
     for line in lines:
+        sta(line)  # {u'str': 6, u'str/a': 4973}
         # ignore unix from
         if line.startswith("From "):
             continue
@@ -99,16 +102,18 @@ def unfold(lines):
     new_headers = deque()
     for h in headers:
         if isinstance(h, deque):
+            sta(h)  # {u'deque(str/a)': 239}
             new_headers.append("".join(h).rstrip("\r\n"))
         else:
+            sta(h)  # {u'str': 6, u'str/a': 974}
             new_headers.append(h.rstrip("\r\n"))
 
     return new_headers
 
 
 def extend(headers, line):
-    sta(headers)
-    sta(line)
+    sta(headers)  # {u'deque()': 14, u'deque(deque(str/a))': 9, u'deque(deque(str/a), str/a)': 3667, u'deque(str/a)': 59}
+    sta(line)  # {u'str/a': 3749}
     try:
         header = headers.pop()
     except IndexError:
@@ -124,7 +129,7 @@ def extend(headers, line):
 
 
 def split2(header):
-    sta(header)
+    sta(header)  # {u'str': 5, u'str/a': 3866}
     pair = header.split(":", 1)
     if len(pair) == 2:
         return normalize(pair[0].rstrip()), pair[1].lstrip()

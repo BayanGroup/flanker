@@ -89,7 +89,7 @@ def attachment(content_type, body, filename=None,
 
 
 def from_string(string):
-    sta(string) # {u"<type 'type'>": 1, u'list()': 1, u'none': 1, u'str/a': 24}
+    sta(string)  # {u"<type 'type'>": 1, u'list()': 1, u'none': 1, u'str/a': 24}
     return scanner.scan(string)
 
 
@@ -100,5 +100,5 @@ def from_python(message):
 
 
 def from_message(message):
-    sta(message.to_string()) # {u'str/a': 1}
+    sta(message.to_string())  # {u'str/a': 1}
     return from_string(message.to_string())

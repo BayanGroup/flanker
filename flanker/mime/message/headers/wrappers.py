@@ -142,11 +142,11 @@ class MessageId(str):
     MAX_LENGTH = 256
 
     def __new__(cls, *args, **kw):
-        sta(args)
+        sta(args)  # {u'(uc/a)': 95}
         return str.__new__(cls, *args, **kw)
 
     def __clean(self):
-        sta(self)
+        sta(self)  # {u'str/a': 164}
         return self.replace('"', '').replace("'", '')
 
     def __hash__(self):
@@ -160,7 +160,7 @@ class MessageId(str):
 
     @classmethod
     def from_string(cls, string):
-        sta(string)
+        sta(string)  # {u'uc/a': 86}
         if not isinstance(string, (str, unicode)):
             return None
         for message_id in cls.scan(string):
@@ -177,13 +177,13 @@ class MessageId(str):
 
     @classmethod
     def is_valid(cls, s):
-        sta(s)
+        sta(s)  # {u'str/a': 1, u'uc/a': 6}
         return cls.MIN_LENGTH < len(s) < cls.MAX_LENGTH and \
             flanker.addresslib.address.is_email(s)
 
     @classmethod
     def scan(cls, string):
-        sta(string)
+        sta(string)  # {u'uc/a': 140}
         for m in cls.RE_ID.finditer(string):
             message_id = m.group(1)
             if cls.is_valid(message_id):
@@ -194,9 +194,9 @@ class Subject(unicode):
     RE_RE = re.compile("((RE|FW|FWD|HA)([[]\d])*:\s*)*", re.I)
 
     def __new__(cls, *args, **kw):
-        sta(args)
+        sta(args)  # OK {u'(uc/a)': 1}
         return unicode.__new__(cls, *args, **kw)
 
     def strip_replies(self):
-        sta(self)
+        sta(self)  # {u'uc/a': 1}
         return self.RE_RE.sub('', self)

@@ -27,7 +27,7 @@ def _guess_and_convert(value):
     Uses cchardet to guess the encoding and if guessing or decoding fails, falls
     back to chardet which is much slower.
     """
-    sta(value)
+    sta(value)  # {u'str': 10}
     try:
         return _guess_and_convert_with(value)
     except:
@@ -42,7 +42,7 @@ def _guess_and_convert_with(value, detector=cchardet):
 
     The detector is either chardet or cchardet module.
     """
-    sta(value)
+    sta(value)  # {u'str': 11}}
     charset = detector.detect(value)
 
     if not charset["encoding"]:
@@ -57,7 +57,7 @@ def _guess_and_convert_with(value, detector=cchardet):
 
 
 def _make_unicode(value, charset=None):
-    # sta(value)  # OK {u'str': 49, u'str/a': 88, u'uc': 1, u'uc/a': 14}
+    # sta(value)  # OK {u'str': 182, u'str/a': 477, u'uc': 13, u'uc/a': 14}
     if isinstance(value, unicode):
         return value
 
@@ -90,7 +90,7 @@ def to_utf8(value, charset=None):
         'hi'
     '''
 
-    # sta(value)  # OK {u'str/a': 8, u'uc': 1, u'uc/a': 14}
+    # sta(value)  # OK {u'str/a': 10, u'uc': 13, u'uc/a': 14}
     value = _make_unicode(value, charset)
 
     return value.encode("utf-8", "strict")
@@ -108,7 +108,7 @@ def is_pure_ascii(value):
         True
     '''
 
-    # sta(value)  # OK {u'str': 1, u'str/a': 8145}
+    sta(value)  # {u'str': 14, u'str/a': 17176, u'uc': 7, u'uc/a': 1}
     if value is None:
         return False
     if not isinstance(value, basestring):
@@ -140,7 +140,7 @@ def cleanup_email(email):
 
 
 def contains_control_chars(s):
-    # sta(s)  # OK {u'str/a': 12619, u'uc': 541, u'uc/a': 11496}
+    sta(s)  # {u'str/a': 12619, u'uc': 545, u'uc/a': 11496}
     if isinstance(s, str):
         s = s.decode('iso-8859-1')
     if CONTROL_CHAR_RE.match(s):
