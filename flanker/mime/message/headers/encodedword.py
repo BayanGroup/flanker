@@ -9,6 +9,7 @@ import email.base64mime
 from base64 import b64encode
 
 from flanker.mime.message import charsets, errors
+from flanker.str_analysis import sta
 
 log = logging.getLogger(__name__)
 
@@ -23,14 +24,17 @@ def unfold(value):
     treated in its unfolded form for further syntactic and semantic
     evaluation.
     """
+    sta(value)  # {u'str': 6, u'str/a': 7438, u'uc': 69, u'uc/a': 152}
     return re.sub(foldingWhiteSpace, r"\2", value)
 
 
 def decode(header):
+    sta(header)  # {u"(none, <type 'dict'>)": 9, u"(str/a, <type 'dict'>)": 354, u"<type 'int'>": 4, u'str/a': 367, u'uc': 7, u'uc/a': 3}
     return mime_to_unicode(header)
 
 
 def mime_to_unicode(header):
+    sta(header)  # {u"(none, <type 'dict'>)": 9, u"(str/a, <type 'dict'>)": 354, u"<type 'int'>": 4, u'none': 1, u'str/a': 396, u'uc': 69, u'uc/a': 152}
     """
     Takes a header value and returns a fully decoded unicode string.
     It differs from standard Python's mail.header.decode_header() because:

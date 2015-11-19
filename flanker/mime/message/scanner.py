@@ -9,13 +9,15 @@ from flanker.mime.message.errors import DecodingError
 from logging import getLogger
 import six
 
+from flanker.str_analysis import sta
+
 log = getLogger(__name__)
 
 
 def scan(string):
     """Scanner that uses 1 pass to scan the entire message and
     build a message tree"""
-
+    sta(string)  # {u"<type 'type'>": 1, u'list()': 1, u'none': 1, u'str': 9, u'str/a': 116}
     if not isinstance(string, str):
         raise DecodingError("Scanner works with byte strings only")
 
@@ -240,6 +242,8 @@ def locate_first_newline(stream, start):
 class TokensIterator(object):
 
     def __init__(self, tokens, string):
+        sta(tokens)  # {u"list((str/a, <type 'dict'>))": 39, u"list(<class 'flanker.mime.message.scanner.Boundary'>, (str/a, <type 'dict'>))": 86}
+        sta(string)  # {u'str': 9, u'str/a': 116}
         self.position = -1
         self.tokens = tokens
         self.string = string
@@ -392,6 +396,7 @@ def tokenize(string):
     """
     Scans the entire message to find all Content-Types and boundaries.
     """
+    sta(string)  # {u'str': 11, u'str/a': 123}
     tokens = deque()
     for m in _RE_TOKENIZER.finditer(string):
         if m.group(_CTYPE):
@@ -412,6 +417,7 @@ def _grab_newline(position, string, direction):
     Boundary can be preceded by `\r\n` or `\n` and can end with `\r\n` or `\n`
     this function scans the line to locate these cases.
     """
+    sta(string)  # {u'str': 62, u'str/a': 5320}
     while 0 < position < len(string):
         if string[position] == '\n':
             if direction < 0:
@@ -433,11 +439,13 @@ def _filter_false_tokens(tokens):
     A boundary token is false if it has not been mentioned in a preceding
     content-type header.
     """
+    # sta(tokens) /
     current_section = _SECTION_HEADERS
     current_content_type = None
     filtered = []
     boundaries = []
     for token in tokens:
+        sta(token)  # {u"(str/a, <type 'dict'>)": 2653, u"<class 'flanker.mime.message.scanner.Boundary'>": 2691, u'str/a': 6219}
         if isinstance(token, ContentType):
             # Only the first content-type header in a headers section is valid.
             if current_content_type or current_section != _SECTION_HEADERS:
@@ -492,6 +500,7 @@ def _filter_false_tokens(tokens):
 
 
 def _strip_endings(value):
+    sta(value)  # {u'str/a': 490}
     if value.endswith("--"):
         return value[:-2]
     else:

@@ -2,9 +2,11 @@ from __future__ import absolute_import
 import regex as re
 from flanker.mime.message import errors
 from flanker.utils import to_utf8, to_unicode
+from flanker.str_analysis import sta
 
 
 def convert_to_unicode(charset, value):
+    sta(value)  # {u'str': 175, u'str/a': 467, u'uc': 76, u'uc/a': 199}
     #in case of unicode we have nothing to do
     if isinstance(value, unicode):
         return value

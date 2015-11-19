@@ -8,6 +8,8 @@ import flanker.addresslib.address
 
 from email.utils import make_msgid
 
+from flanker.str_analysis import sta
+
 
 class WithParams(tuple):
 
@@ -140,9 +142,11 @@ class MessageId(str):
     MAX_LENGTH = 256
 
     def __new__(cls, *args, **kw):
+        sta(args)
         return str.__new__(cls, *args, **kw)
 
     def __clean(self):
+        sta(self)
         return self.replace('"', '').replace("'", '')
 
     def __hash__(self):
@@ -156,6 +160,7 @@ class MessageId(str):
 
     @classmethod
     def from_string(cls, string):
+        sta(string)
         if not isinstance(string, (str, unicode)):
             return None
         for message_id in cls.scan(string):
@@ -163,6 +168,7 @@ class MessageId(str):
 
     @classmethod
     def generate(cls, domain=None):
+        sta(domain)
         message_id = make_msgid().strip("<>")
         if domain:
             local = message_id.split('@')[0]
@@ -171,11 +177,13 @@ class MessageId(str):
 
     @classmethod
     def is_valid(cls, s):
+        sta(s)
         return cls.MIN_LENGTH < len(s) < cls.MAX_LENGTH and \
             flanker.addresslib.address.is_email(s)
 
     @classmethod
     def scan(cls, string):
+        sta(string)
         for m in cls.RE_ID.finditer(string):
             message_id = m.group(1)
             if cls.is_valid(message_id):
@@ -186,7 +194,9 @@ class Subject(unicode):
     RE_RE = re.compile("((RE|FW|FWD|HA)([[]\d])*:\s*)*", re.I)
 
     def __new__(cls, *args, **kw):
+        sta(args)
         return unicode.__new__(cls, *args, **kw)
 
     def strip_replies(self):
+        sta(self)
         return self.RE_RE.sub('', self)

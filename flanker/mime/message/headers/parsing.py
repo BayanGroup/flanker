@@ -5,6 +5,7 @@ from collections import deque
 from flanker.mime.message.headers import encodedword, parametrized
 from flanker.mime.message.headers.wrappers import ContentType, WithParams
 from flanker.mime.message.errors import DecodingError
+from flanker.str_analysis import sta
 from flanker.utils import to_unicode, is_pure_ascii
 
 MAX_LINE_LENGTH = 10000
@@ -50,6 +51,7 @@ def parse_header_value(name, val):
 
 
 def is_empty(line):
+    sta(line)
     return line in ('\r\n', '\r', '\n')
 
 
@@ -58,6 +60,7 @@ RE_HEADER = regex.compile(r'^(From |[\041-\071\073-\176]+:|[\t ])')
 
 def split(fp):
     """Read lines with headers until the start of body"""
+    sta(fp)
     lines = deque()
     for line in fp:
         if len(line) > MAX_LINE_LENGTH:
@@ -80,6 +83,7 @@ def split(fp):
 
 
 def unfold(lines):
+    sta(lines)
     headers = deque()
 
     for line in lines:
@@ -103,6 +107,8 @@ def unfold(lines):
 
 
 def extend(headers, line):
+    sta(headers)
+    sta(line)
     try:
         header = headers.pop()
     except IndexError:
@@ -118,6 +124,7 @@ def extend(headers, line):
 
 
 def split2(header):
+    sta(header)
     pair = header.split(":", 1)
     if len(pair) == 2:
         return normalize(pair[0].rstrip()), pair[1].lstrip()

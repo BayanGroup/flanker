@@ -6,6 +6,7 @@ import logging
 from collections import deque
 from email.header import Header
 from flanker.mime.message.headers import parametrized
+from flanker.str_analysis import sta
 from flanker.utils import to_utf8
 import six
 
@@ -21,6 +22,8 @@ ADDRESS_HEADERS = ('From', 'To', 'Delivered-To', 'Cc', 'Bcc', 'Reply-To')
 
 
 def to_mime(key, value):
+    sta(key)  # {u'str/a': 693}
+    sta(value)  # {u"(str/a, <type 'dict'>)": 169, u'str/a': 504, u'uc': 13, u'uc/a': 7}
     if not value:
         return ""
 
@@ -31,6 +34,8 @@ def to_mime(key, value):
 
 
 def encode(name, value):
+    sta(name)  # {u'str/a': 683}
+    sta(value)  # {u"(str/a, <type 'dict'>)": 169, u'str/a': 494, u'uc': 13, u'uc/a': 7}
     try:
         if parametrized.is_parametrized(name, value):
             value, params = value
@@ -43,6 +48,8 @@ def encode(name, value):
 
 
 def encode_unstructured(name, value):
+    sta(name)  # {u'str/a': 518}
+    sta(value)  # {u'str/a': 496, u'uc': 15, u'uc/a': 7}
     if len(value) > MAX_HEADER_LENGTH:
         return to_utf8(value)
     try:

@@ -7,8 +7,11 @@ from flanker.mime.message.headers.parsing import parse_stream
 from flanker.mime.message.headers import MimeHeaders
 from six.moves import range
 
+from flanker.str_analysis import sta
+
 
 def detect(message):
+    # sta(message) /
     headers = collect(message)
     return Result(
         score=len(headers) / float(len(HEADERS)),
@@ -18,6 +21,7 @@ def detect(message):
 
 
 def collect(message):
+    # sta(message) /
     collected = deque()
     for p in message.walk(with_self=True):
         for h in HEADERS:
@@ -29,6 +33,7 @@ def collect(message):
 
 
 def collect_from_status(body):
+    sta(body)  # {u'str/a': 3}
     out = deque()
     with closing(StringIO(body)) as stream:
         for i in range(3):
@@ -37,12 +42,15 @@ def collect_from_status(body):
 
 
 def get_status(headers):
+    # sta(headers) /
     for v in headers.getall('Status'):
+        sta(v)  # {u'uc/a': 6}
         if RE_STATUS.match(v.strip()):
             return v
 
 
 def get_notification(message):
+    # sta(message) /
     for part in message.walk():
         if part.headers.get('Content-Description',
                             '').lower() == 'notification':

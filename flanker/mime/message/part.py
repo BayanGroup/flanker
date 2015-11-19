@@ -10,6 +10,7 @@ from cStringIO import StringIO
 from os import path
 from email.mime import audio
 
+from flanker.str_analysis import sta
 from flanker.utils import is_pure_ascii
 from flanker.mime import bounce
 from flanker.mime.message import headers, charsets
@@ -31,6 +32,8 @@ class Stream(object):
         self.end = end
         self.string = string
         self.stream = stream
+        sta(string)  # {u'str': 29, u'str/a': 1075}
+        sta(stream)  # {u"<type 'cStringIO.StringI'>": 1104}
 
         self._headers = None
         self._body_start = None
@@ -95,6 +98,7 @@ class Stream(object):
 def adjust_content_type(content_type, body=None, filename=None):
     """Adjust content type based on filename or body contents
     """
+    sta(body)  # {u'none': 8, u'str': 7, u'str/a': 67, u'uc': 7, u'uc/a': 1}
     if filename and str(content_type) == 'application/octet-stream':
         # check if our internal guess returns anything
         guessed = _guess_type(filename)
@@ -127,6 +131,7 @@ def _guess_type(filename):
     that heuristic content type checker get wrong.
     """
 
+    sta(filename)  # {u'str/a': 8, u'uc/a': 3}
     if filename.endswith(".bz2"):
         return ContentType("application", "x-bzip2")
 
@@ -144,6 +149,10 @@ class Body(object):
         self.disposition = disposition or ('attachment' if filename else None)
         self.filename = filename
         self.size = len(body)
+
+        sta(content_type)  # {u"(str/a, <type 'dict'>)": 80}
+        sta(body)  # {u'str': 7, u'str/a': 65, u'uc': 7, u'uc/a': 1}
+        sta(filename)  # {u'none': 70, u'str/a': 9, u'uc': 1}
 
         if self.filename:
             self.filename = path.basename(self.filename)
@@ -359,6 +368,7 @@ class RichPartMixin(object):
         """
         Removes all passed headers name in one operation.
         """
+        sta(header_names)  # {u'()': 2, u'(str/a, str/a, str/a, str/a)': 1}
         for header_name in header_names:
             if header_name in self.headers:
                 del self.headers[header_name]
@@ -531,6 +541,7 @@ class MimePart(RichPartMixin):
 
 
     def _to_stream_when_changed(self, out):
+        sta(out)  # {u"<class 'flanker.mime.message.part._CounterIO'>": 3, u"<type 'cStringIO.StringO'>": 105}
 
         ctype = self.content_type
 
@@ -665,6 +676,7 @@ def has_long_lines(text, max_line_len=599):
     '''
     if not text:
         return False
+    sta(text)  # {u'str/a': 28}
     for line in text.splitlines():
         if len(line) >= max_line_len:
             return True
