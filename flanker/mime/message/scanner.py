@@ -37,6 +37,7 @@ def traverse(pointer, iterator, parent=None):
 
     iterator.check()
     token = next(iterator)
+    sta(token)  # {u"(str/a, <type 'dict'>)": 1048, u"<class 'flanker.mime.message.scanner.Boundary'>": 54}
 
     # this means that this part does not have any
     # content type set, so set it to RFC default (text/plain)

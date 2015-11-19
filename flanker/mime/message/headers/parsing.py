@@ -12,7 +12,7 @@ MAX_LINE_LENGTH = 10000
 
 
 def normalize(header):
-    sta(header)
+    sta(header)  # {u'str/a': 7983}
     return string.capwords(header.lower(), '-')
 
 

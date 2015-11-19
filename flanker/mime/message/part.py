@@ -32,6 +32,7 @@ class Stream(object):
         self.end = end
         self.string = string
         self.stream = stream
+        sta(content_type)  # {u"(str/a, <type 'dict'>)": 1104}
         sta(string)  # {u'str': 29, u'str/a': 1075}
         sta(stream)  # {u"<type 'cStringIO.StringI'>": 1104}
 
@@ -98,6 +99,7 @@ class Stream(object):
 def adjust_content_type(content_type, body=None, filename=None):
     """Adjust content type based on filename or body contents
     """
+    sta(content_type)  # {u"(str/a, <type 'dict'>)": 90}
     sta(body)  # {u'none': 8, u'str': 7, u'str/a': 67, u'uc': 7, u'uc/a': 1}
     if filename and str(content_type) == 'application/octet-stream':
         # check if our internal guess returns anything
@@ -160,6 +162,7 @@ class Body(object):
         if not trust_ctype:
             content_type = adjust_content_type(content_type, body, filename)
 
+        sta(content_type.main)  # {u'str/a': 80}
         if content_type.main == 'text':
             # the text should have a charset
             if not charset:
@@ -614,6 +617,7 @@ def decode_charset(ctype, body):
     # the whitespace (0xA0) with &nbsp; Outlook is reported to
     # have a bug there
     sta(ctype.sub)  # {u'str/a': 55}
+    sta(body)  # {u'uc': 25, u'uc/a': 30}
     if ctype.sub =='html' and charset == 'utf-8':
         # Outlook bug
         body = body.replace(u'\xa0', u'&nbsp;')

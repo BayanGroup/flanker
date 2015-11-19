@@ -35,7 +35,6 @@ def decode(header):
 
 
 def mime_to_unicode(header):
-    sta(header)  # {u"(none, <type 'dict'>)": 9, u"(str/a, <type 'dict'>)": 354, u"<type 'int'>": 4, u'none': 1, u'str/a': 396, u'uc': 69, u'uc/a': 152}
     """
     Takes a header value and returns a fully decoded unicode string.
     It differs from standard Python's mail.header.decode_header() because:
@@ -48,6 +47,7 @@ def mime_to_unicode(header):
     >>> header_to_unicode("hello")
         u"Hello"
     """
+    sta(header)  # {u"(none, <type 'dict'>)": 9, u"(str/a, <type 'dict'>)": 354, u"<type 'int'>": 4, u'none': 1, u'str/a': 396, u'uc': 69, u'uc/a': 152}
     # Only string header values need to be converted.
     if not isinstance(header, six.string_types):
         return header

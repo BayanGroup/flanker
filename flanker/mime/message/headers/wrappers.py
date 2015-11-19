@@ -31,10 +31,12 @@ class WithParams(tuple):
 class ContentType(tuple):
 
     def __new__(self, main, sub, params=None):
+        sta((main, sub))  # {u'(str/a, str/a)': 3513}
         return tuple.__new__(
             self, (main.lower() + '/' + sub.lower(), params or {}))
 
     def __init__(self, main, sub, params={}):
+        sta((main, sub))  # {u'(str/a, str/a)': 3513}
         self.main = main
         self.sub = sub
 
