@@ -113,6 +113,8 @@ def is_pure_ascii(value):
         return False
     if not isinstance(value, basestring):
         return False
+    if isinstance(value, str):
+        value = value.decode('iso-8859-1')
 
     try:
         value.encode("ascii")
