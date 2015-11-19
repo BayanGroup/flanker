@@ -132,10 +132,10 @@ def _guess_type(filename):
     """
 
     # sta(filename)  # OK {u'str/a': 8, u'uc/a': 3}
-    if filename.endswith(".bz2"):
+    if filename.endswith(".bz2" if isinstance(filename, bytes) else u'.bz2'):
         return ContentType("application", "x-bzip2")
 
-    if filename.endswith(".gz"):
+    if filename.endswith(".gz" if isinstance(filename, bytes) else u'.gz'):
         return ContentType("application", "x-gzip")
 
     return None
