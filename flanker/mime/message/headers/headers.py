@@ -160,7 +160,7 @@ class MimeHeaders(object):
 def remove_newlines(value):
     if not value:
         return ''
-    elif isinstance(value, (str, unicode)):
+    elif isinstance(value, (str, six.text_type)):
         return value.replace('\r', '').replace('\n', '')
     else:
         return value

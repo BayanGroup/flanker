@@ -3,12 +3,13 @@ import regex as re
 from flanker.mime.message import errors
 from flanker.utils import to_utf8, to_unicode
 from flanker.str_analysis import sta
+import six
 
 
 def convert_to_unicode(charset, value):
     # sta(value)  # OK {u'str': 175, u'str/a': 467, u'uc': 76, u'uc/a': 199}
     #in case of unicode we have nothing to do
-    if isinstance(value, unicode):
+    if isinstance(value, six.text_type):
         return value
 
     charset = _translate_charset(charset)

@@ -10,6 +10,7 @@ from base64 import b64encode
 
 from flanker.mime.message import charsets, errors
 from flanker.str_analysis import sta
+import six
 
 log = logging.getLogger(__name__)
 
@@ -48,7 +49,7 @@ def mime_to_unicode(header):
         u"Hello"
     """
     # Only string header values need to be converted.
-    if not isinstance(header, basestring):
+    if not isinstance(header, six.string_types):
         return header
 
     try:

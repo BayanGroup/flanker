@@ -8,6 +8,7 @@ from flanker.mime.message.part import RichPartMixin
 from flanker.mime.message.scanner import ContentType
 from flanker.mime.message import utils, headers
 from flanker.mime.message.headers import parametrized, normalize
+import six
 
 log = logging.getLogger(__name__)
 
@@ -164,8 +165,8 @@ def _try_decode(key, value):
         try:
             return headers.parse_header_value(key, value)
         except Exception:
-            return unicode(value, 'utf-8', 'ignore')
-    elif isinstance(value, unicode):
+            return six.text_type(value, 'utf-8', 'ignore')
+    elif isinstance(value, six.text_type):
         return value
     else:
         return ""
