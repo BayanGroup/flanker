@@ -332,6 +332,7 @@ class Address(object):
 
 
 # TODO: RFC 6530 (Internationalizaion of address, etc) compliancy
+@six.python_2_unicode_compatible
 class EmailAddress(Address):
     """
     Represents a fully parsed email address with built-in support for MIME
@@ -406,7 +407,7 @@ class EmailAddress(Address):
         'boo@host.com'
         """
         # sta(self.address)  # OK {u'str/a': 1}
-        return self.address
+        return self.address if isinstance(self.address, unicode) else self.address.decode('utf-8')
 
     @property
     def supports_routing(self):
@@ -481,6 +482,7 @@ class EmailAddress(Address):
 
 
 # TODO: Non-ASCII addresses compliancy
+@six.python_2_unicode_compatible
 class UrlAddress(Address):
     """
     Represents a parsed URL:
@@ -527,7 +529,7 @@ class UrlAddress(Address):
         return self.parse_result.path
 
     def __str__(self):
-        return self.address
+        return self.address if isinstance(self.address, unicode) else self.address.decode('utf-8')
 
     def full_spec(self):
         return self.address if isinstance(self.address, bytes) else self.address.encode('idna')
@@ -549,6 +551,7 @@ class UrlAddress(Address):
         return hash(self.address)
 
 
+@six.python_2_unicode_compatible
 class AddressList(object):
     """
     Keeps the list of addresses. Each address is an EmailAddress or
@@ -633,7 +636,8 @@ class AddressList(object):
 
     def __str__(self):
         # sta(self.full_spec())  # OK {u'str/a': 2}
-        return self.full_spec()
+        f_spec = self.full_spec()
+        return f_spec if isinstance(f_spec, unicode) else f_spec.decode('utf-8')
 
     @property
     def hostnames(self):

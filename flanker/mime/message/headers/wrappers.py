@@ -4,6 +4,8 @@ provide some convenience access methods
 from __future__ import absolute_import
 
 import regex as re
+import six
+
 import flanker.addresslib.address
 
 from email.utils import make_msgid
@@ -25,6 +27,7 @@ class WithParams(tuple):
         return tuple.__getitem__(self, 1)
 
 
+@six.python_2_unicode_compatible
 class ContentType(tuple):
 
     def __new__(self, main, sub, params=None):
@@ -113,7 +116,7 @@ class ContentType(tuple):
         self.params["charset"] = value.lower()
 
     def __str__(self):
-        return "{0}/{1}".format(self.main, self.sub)
+        return self.main.decode('utf-8') + u"/" + self.sub.decode('utf-8')
 
     def __eq__(self, other):
         if isinstance(other, ContentType):
@@ -131,7 +134,7 @@ class ContentType(tuple):
         return not self.__eq__(other)
 
     def __repr__(self):
-        return "ContentType('{}', '{}', {!r})".format(self.main, self.sub,
+        return u"ContentType('{}', '{}', {!r})".format(self.main, self.sub,
                                                       self.params)
 
 

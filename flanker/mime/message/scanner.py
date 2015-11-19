@@ -276,6 +276,7 @@ class TokensIterator(object):
                     self.opcount, _MAX_OPS))
 
 
+@six.python_2_unicode_compatible
 class Boundary(object):
     def __init__(self, value, start, end, final=None):
         self.value = value
@@ -287,10 +288,10 @@ class Boundary(object):
         return self.final
 
     def __str__(self):
-        return "Boundary({}, final={})".format(self.value, self.final)
+        return u"Boundary({}, final={})".format(self.value, self.final)
 
     def __repr__(self):
-        return ("Boundary('{}', {}, {}, final={})"
+        return (u"Boundary('{}', {}, {}, final={})"
                 .format(self.value, self.start, self.end, self.final))
 
     def __ne__(self, other):

@@ -400,7 +400,7 @@ class RichPartMixin(object):
 
     def __str__(self):
         sta(self.content_type)  # {u"(str/a, <type 'dict'>)": 6}
-        return "({0})".format(self.content_type)
+        return u"({0})".format(self.content_type)
 
 
 class MimePart(RichPartMixin):

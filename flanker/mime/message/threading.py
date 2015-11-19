@@ -71,6 +71,7 @@ def introduces_loop(parent, child):
     return parent == child or child.has_descendant(parent)
 
 
+@six.python_2_unicode_compatible
 class Container(object):
     def __init__(self, message=None):
         self.message = message
@@ -80,7 +81,7 @@ class Container(object):
         self.prev = None
 
     def __str__(self):
-        return self.message.message_id if self.message else "dummy"
+        return self.message.message_id.decode('utf-8') if self.message else u"dummy"
 
     @property
     def is_dummy(self):
