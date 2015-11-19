@@ -574,7 +574,7 @@ class MimePart(RichPartMixin):
                     sta(boundary)  # {u'str/a': 141}
                     sta(part)  # {u"<class 'flanker.mime.message.part.MimePart'>": 141}
                     out.write(
-                        (CRLF if index != 0 else "") + boundary + CRLF)
+                        (CRLF if index != 0 else b"") + boundary + CRLF)
                     part.to_stream(out)
                 sta(ctype.get_boundary_line(final=True))  # {u'str/a': 40}
                 out.write(CRLF + ctype.get_boundary_line(final=True) + CRLF)
