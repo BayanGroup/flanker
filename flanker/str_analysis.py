@@ -1,6 +1,7 @@
+from __future__ import absolute_import
 import json
 import re
-from collections import defaultdict
+from collections import defaultdict, deque
 
 import _sre
 import yaml
@@ -29,6 +30,8 @@ def statype(var):
         return "(" + ", ".join([statype(x) for x in var]) + ")"
     elif isinstance(var, list):
         return "list(" + ", ".join(list(set(statype(x) for x in var))) + ")"
+    elif isinstance(var, deque):
+        return "deque(" + ", ".join(list(set(statype(x) for x in var))) + ")"
     elif isinstance(var, str):
         try:
             var.decode('ascii')
