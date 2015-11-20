@@ -161,7 +161,12 @@ class TokenStream(object):
         start_pos = self.position
         end_pos = len(self.stream)
 
-        match = DELIMITER.search(self.stream, self.position)
+        delimiter = DELIMITER
+        # convert bytes pattern to unicode when matching against a unicode stream
+        if isinstance(delimiter.pattern, six.binary_type) and isinstance(self.stream, six.text_type):
+            delimiter = re.compile(delimiter.pattern.decode('iso-8859-1'), delimiter.flags)
+
+        match = delimiter.search(self.stream, self.position)
         if match:
             self.position = match.start()
             end_pos = match.start()
