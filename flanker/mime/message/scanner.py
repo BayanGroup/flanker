@@ -18,7 +18,7 @@ def scan(string):
     """Scanner that uses 1 pass to scan the entire message and
     build a message tree"""
     sta(string)  # {u"<type 'type'>": 1, u'list()': 1, u'none': 1, u'str': 9, u'str/a': 116}
-    if not isinstance(string, str):
+    if not isinstance(string, six.binary_type):
         raise DecodingError("Scanner works with byte strings only")
 
     tokens = tokenize(string)

@@ -66,7 +66,7 @@ HEADERS = ('Action',
            'Reporting-Mta',
            'Status')
 
-RE_STATUS = re.compile(ur'\d\.\d+\.\d+', re.IGNORECASE)
+RE_STATUS = re.compile(u'\d\.\d+\.\d+', re.IGNORECASE)
 
 
 class Result(object):

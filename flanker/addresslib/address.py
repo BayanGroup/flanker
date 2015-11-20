@@ -46,7 +46,7 @@ from flanker.str_analysis import sta, statype
 from flanker.utils import metrics_wrapper
 from flanker.mime.message.headers.encoding import encode_string
 from flanker.mime.message.headers.encodedword import mime_to_unicode
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 import six
 
 
@@ -407,7 +407,7 @@ class EmailAddress(Address):
         'boo@host.com'
         """
         # sta(self.address)  # OK {u'str/a': 1}
-        return self.address if isinstance(self.address, unicode) else self.address.decode('utf-8')
+        return self.address if isinstance(self.address, six.text_type) else self.address.decode('utf-8')
 
     @property
     def supports_routing(self):
@@ -449,7 +449,7 @@ class EmailAddress(Address):
         Allows comparison of two addresses.
         """
         if other:
-            if isinstance(other, six.string_types):
+            if isinstance(other, (six.text_type, six.binary_type)):
                 other = parse(other)
                 if not other:
                     return False
@@ -529,7 +529,7 @@ class UrlAddress(Address):
         return self.parse_result.path
 
     def __str__(self):
-        return self.address if isinstance(self.address, unicode) else self.address.decode('utf-8')
+        return self.address if isinstance(self.address, six.text_type) else self.address.decode('utf-8')
 
     def full_spec(self):
         return self.address if isinstance(self.address, bytes) else self.address.encode('idna')
@@ -543,7 +543,7 @@ class UrlAddress(Address):
     def __eq__(self, other):
         "Allows comparison of two URLs"
         if other:
-            if not isinstance(other, six.string_types):
+            if not isinstance(other, (six.text_type, six.binary_type)):
                 other = other.address
             return self.address == other
 
@@ -637,7 +637,7 @@ class AddressList(object):
     def __str__(self):
         # sta(self.full_spec())  # OK {u'str/a': 2}
         f_spec = self.full_spec()
-        return f_spec if isinstance(f_spec, unicode) else f_spec.decode('utf-8')
+        return f_spec if isinstance(f_spec, six.text_type) else f_spec.decode('utf-8')
 
     @property
     def hostnames(self):

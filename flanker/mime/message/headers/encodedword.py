@@ -49,7 +49,7 @@ def mime_to_unicode(header):
     """
     sta(header)  # {u"(none, <type 'dict'>)": 9, u"(str/a, <type 'dict'>)": 354, u"<type 'int'>": 4, u'none': 1, u'str/a': 396, u'uc': 69, u'uc/a': 152}
     # Only string header values need to be converted.
-    if not isinstance(header, six.string_types):
+    if not isinstance(header, (six.text_type, six.binary_type)):
         return header
 
     try:

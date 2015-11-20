@@ -7,8 +7,7 @@ from flanker.str_analysis import sta, statype
 import six
 
 _RE_ATOM_PHRASE = re.compile(
-    br'({atom}({whitespace}{atom})*)|^$'
-    .format(atom=ATOM.pattern, whitespace=WHITESPACE.pattern),
+    b'(' + ATOM.pattern + b'(' + WHITESPACE.pattern + ATOM.pattern + b')*)|^$',
     re.MULTILINE | re.VERBOSE)
 
 

@@ -58,7 +58,7 @@ def _guess_and_convert_with(value, detector=cchardet):
 
 def _make_unicode(value, charset=None):
     # sta(value)  # OK {u'str': 182, u'str/a': 477, u'uc': 13, u'uc/a': 14}
-    if isinstance(value, unicode):
+    if isinstance(value, six.text_type):
         return value
 
     try:
@@ -80,7 +80,7 @@ def _make_unicode(value, charset=None):
 def to_unicode(value, charset=None):
     # sta(value)  # OK {u'str': 49, u'str/a': 80}
     value = _make_unicode(value, charset)
-    return unicode(value.encode("utf-8", "strict"), "utf-8", "strict")
+    return six.text_type(value.encode("utf-8", "strict"), "utf-8", "strict")
 
 
 def to_utf8(value, charset=None):
@@ -111,9 +111,9 @@ def is_pure_ascii(value):
     sta(value)  # {u'str': 14, u'str/a': 17176, u'uc': 7, u'uc/a': 1}
     if value is None:
         return False
-    if not isinstance(value, basestring):
+    if not isinstance(value, (six.text_type, six.binary_type)):
         return False
-    if isinstance(value, str):
+    if isinstance(value, six.binary_type):
         value = value.decode('iso-8859-1')
 
     try:
@@ -125,7 +125,7 @@ def is_pure_ascii(value):
 
 def cleanup_display_name(name):
     # sta(name)  # OK {u'uc': 84, u'uc/a': 12227}
-    if isinstance(name, unicode):
+    if isinstance(name, six.text_type):
         return name.strip(u''';,'\r\n ''')
     else:
         return name.strip(b''';,'\r\n ''')
@@ -133,7 +133,7 @@ def cleanup_display_name(name):
 
 def cleanup_email(email):
     # sta(email)  # OK {u'str/a': 8246, u'uc/a': 5388}
-    if isinstance(email, unicode):
+    if isinstance(email, six.text_type):
         return email.strip(u"<>;, ")
     else:
         return email.strip(b"<>;, ")
@@ -141,7 +141,7 @@ def cleanup_email(email):
 
 def contains_control_chars(s):
     sta(s)  # {u'str/a': 12619, u'uc': 545, u'uc/a': 11496}
-    if isinstance(s, str):
+    if isinstance(s, six.binary_type):
         s = s.decode('iso-8859-1')
     if CONTROL_CHAR_RE.match(s):
         return True

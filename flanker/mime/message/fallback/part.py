@@ -61,7 +61,7 @@ class FallbackMimePart(RichPartMixin):
         if self.content_type.is_delivery_status():
             self._body = self._m.get_payload(decode=True)
             if self._body is None:
-                self._body = "\r\n".join(str(p) for p in self._m.get_payload())
+                self._body = "\r\n".join(six.binary_type(p) for p in self._m.get_payload())
 
         elif not self._m.is_multipart():
             self._body = self._m.get_payload(decode=True)
@@ -161,7 +161,7 @@ class FallbackHeaders(MimeHeaders):
 def _try_decode(key, value):
     if isinstance(value, (tuple, list)):
         return value
-    elif isinstance(value, str):
+    elif isinstance(value, six.binary_type):
         try:
             return headers.parse_header_value(key, value)
         except Exception:
