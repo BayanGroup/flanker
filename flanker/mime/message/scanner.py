@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 import regex as re
 from collections import deque
-from cStringIO import StringIO
+from io import BytesIO
 import sys
 from flanker.mime.message.headers import parsing, is_empty, ContentType
 from flanker.mime.message.part import MimePart, Stream
@@ -248,7 +248,7 @@ class TokensIterator(object):
         self.position = -1
         self.tokens = tokens
         self.string = string
-        self.stream = StringIO(string)
+        self.stream = BytesIO(string)
         self.opcount = 0
 
     def next(self):

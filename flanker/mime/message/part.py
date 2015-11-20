@@ -5,7 +5,7 @@ import logging
 import mimetypes
 import imghdr
 from contextlib import closing
-from cStringIO import StringIO
+from io import BytesIO
 
 from os import path
 from email.mime import audio
@@ -493,11 +493,11 @@ class MimePart(RichPartMixin):
         # we submit the original string,
         # no copying, no alternation, yeah!
         if self.is_root() and not self.was_changed(ignore_prepends=True):
-            with closing(StringIO()) as out:
+            with closing(BytesIO()) as out:
                 self._container._stream_prepended_headers(out)
                 return out.getvalue() + self._container.string
         else:
-            with closing(StringIO()) as out:
+            with closing(BytesIO()) as out:
                 self.to_stream(out)
                 return out.getvalue()
 

@@ -1,7 +1,7 @@
 # coding:utf-8
 
 import email
-from cStringIO import StringIO
+from io import BytesIO
 from contextlib import closing
 from email import message_from_string
 
@@ -19,7 +19,7 @@ def bad_string_test():
     mime = "Content-Type: multipart/broken\n\n"
     message = create.from_string("Content-Type:multipart/broken")
     eq_(mime, message.to_string())
-    with closing(StringIO()) as out:
+    with closing(BytesIO()) as out:
         message.to_stream(out)
         eq_(mime, out.getvalue())
     list(message.walk())
@@ -44,7 +44,7 @@ def bad_python_test():
     message = create.from_python(
         message_from_string("Content-Type:multipart/broken"))
     ok_(message.to_string())
-    with closing(StringIO()) as out:
+    with closing(BytesIO()) as out:
         message.to_stream(out)
         ok_(out.getvalue())
     list(message.walk())
@@ -70,7 +70,7 @@ def message_alter_body_and_serialize_test():
     part = list(message.walk())[2]
     part.body = u'Привет, Danielle!\n\n'
 
-    with closing(StringIO()) as out:
+    with closing(BytesIO()) as out:
         message.to_stream(out)
         message1 = create.from_string(out.getvalue())
         message2 = create.from_string(message.to_string())

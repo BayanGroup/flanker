@@ -1,7 +1,7 @@
 # coding:utf-8
 from email import message_from_string
 from contextlib import closing
-from cStringIO import StringIO
+from io import BytesIO
 
 from nose.tools import eq_, ok_, assert_false, assert_raises, assert_less
 
@@ -71,7 +71,7 @@ def immutability_test():
 
     message = scan(TORTURE)
     eq_('Multi-media mail demonstration ', message.headers['Subject'])
-    with closing(StringIO()) as out:
+    with closing(BytesIO()) as out:
         message.to_stream(out)
         eq_(TORTURE.rstrip(), out.getvalue().rstrip())
 
@@ -168,7 +168,7 @@ def enclosed_broken_encoding_test():
             p.headers['A'] = 'b'
         except:
             pass
-    with closing(StringIO()) as out:
+    with closing(BytesIO()) as out:
         message.to_stream(out)
         ok_(out.getvalue())
 
@@ -180,7 +180,7 @@ def double_serialization_test():
 
     a = message.to_string()
     b = message.to_string()
-    with closing(StringIO()) as out:
+    with closing(BytesIO()) as out:
         message.to_stream(out)
         c = out.getvalue()
     eq_(a, b)
@@ -499,7 +499,7 @@ def message_alter_body_and_serialize_test():
     part = list(message.walk())[2]
     part.body = u'Привет, Danielle!\n\n'
 
-    with closing(StringIO()) as out:
+    with closing(BytesIO()) as out:
         message.to_stream(out)
         message1 = scan(out.getvalue())
         message2 = scan(message.to_string())
