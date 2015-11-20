@@ -393,7 +393,7 @@ class _AddressParser(object):
             wrds.append(wrd)
 
         # sta(wrds)  # OK {u'list(str/a)': 6188, u'list(uc)': 1, u'list(uc/a)': 5346, u'list(uc/a, uc)': 60}
-        concatenator = b'' if isinstance(self.stream, six.binary_type) else u''
+        concatenator = b'' if isinstance(self.stream.stream, six.binary_type) else u''
         return cleanup_display_name(concatenator.join(wrds))
 
     def _angle_addr_rfc(self):
