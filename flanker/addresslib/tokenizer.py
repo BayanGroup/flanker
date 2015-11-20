@@ -188,7 +188,7 @@ class TokenStream(object):
         # peek at whats next in the stream
         if token is None:
             if self.position < len(self.stream):
-                return self.stream[self.position]
+                return self.stream[self.position:self.position+1]
             else:
                 return None
         # peek for a specific token

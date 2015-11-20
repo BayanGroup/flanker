@@ -37,3 +37,6 @@ nosetests.xml
 
 # Editor temp files
 *.swp
+.idea
+
+tests-27

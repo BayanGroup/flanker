@@ -90,7 +90,7 @@ class MimeHeaders(object):
         """
         Returns header,val pairs in the preserved order.
         """
-        return list(six.iteritems(self))
+        return list(self.iteritems(self))
 
     def iteritems(self, raw=False):
         """
@@ -151,10 +151,10 @@ class MimeHeaders(object):
                 break
             i += 1
             try:
-                h = h.encode('ascii')
+                h = h
             except UnicodeDecodeError:
                 raise EncodingError("Non-ascii header name")
-            stream.write("{0}: {1}\r\n".format(h, to_mime(h, v)))
+            stream.write(h + b': ' + to_mime(h, v) + b'\r\n')
 
 
 def remove_newlines(value):

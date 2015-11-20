@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+# from __future__ import absolute_import
 import regex as re
 from flanker.mime.message import errors
 from flanker.utils import to_utf8, to_unicode
@@ -7,10 +7,12 @@ import six
 
 
 def convert_to_unicode(charset, value):
-    # sta(value)  # OK {u'str': 175, u'str/a': 467, u'uc': 76, u'uc/a': 199}
+    sta(value)  # OK {u'str': 175, u'str/a': 467, u'uc': 76, u'uc/a': 199}
+    #charset -> bytes
     #in case of unicode we have nothing to do
     if isinstance(value, six.text_type):
         return value
+    charset = charset.decode('utf-8')
 
     charset = _translate_charset(charset)
 
@@ -22,6 +24,7 @@ def _translate_charset(charset):
 
     Otherwise returns unmodified.
     """
+    #charset -> unicode
     # ev: (ticket #2819)
     if "sjis" in charset.lower():
         return 'shift_jis'

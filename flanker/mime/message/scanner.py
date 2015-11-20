@@ -3,6 +3,8 @@ import regex as re
 from collections import deque
 from io import BytesIO
 import sys
+
+from flanker import ASCII_FLAG
 from flanker.mime.message.headers import parsing, is_empty, ContentType
 from flanker.mime.message.part import MimePart, Stream
 from flanker.mime.message.errors import DecodingError
@@ -38,7 +40,6 @@ def traverse(pointer, iterator, parent=None):
     iterator.check()
     token = next(iterator)
     sta(token)  # {u"(str/a, <type 'dict'>)": 1048, u"<class 'flanker.mime.message.scanner.Boundary'>": 54}
-
     # this means that this part does not have any
     # content type set, so set it to RFC default (text/plain)
     # it even can have no headers
@@ -95,7 +96,7 @@ def traverse(pointer, iterator, parent=None):
             token = iterator.current()
             if token.is_end():
                 break
-            if token == boundary and token.is_final():
+            if isinstance(token, Boundary) and token == boundary and token.is_final():
                 next(iterator)
                 break
             parts.append(traverse(token, iterator, content_type))
@@ -175,7 +176,7 @@ def grab_headers(pointer, iterator, parent):
             break
 
     return make_part(
-        content_type=content_type or ContentType("text", "plain"),
+        content_type=content_type or ContentType(b"text", b"plain"),
         start=pointer,
         end=end,
         iterator=iterator,
@@ -183,7 +184,7 @@ def grab_headers(pointer, iterator, parent):
 
 
 def default_content_type():
-    return ContentType("text", "plain", {'charset': 'ascii'})
+    return ContentType(b"text", b"plain", {b'charset': b'ascii'})
 
 
 def make_part(content_type, start, end, iterator, parts=[], enclosed=None,
@@ -257,6 +258,9 @@ class TokensIterator(object):
             return _END
         return self.tokens[self.position]
 
+    def __next__(self):
+        return self.next()
+
     def current(self):
         if self.position >= len(self.tokens):
             return _END
@@ -302,7 +306,12 @@ class Boundary(object):
         if isinstance(other, Boundary):
             return self.value == other.value and self.final == other.final
         else:
-            return self.value == str(other)
+            if isinstance(other, six.binary_type):
+                return self.value == other
+            elif isinstance(other, six.text_type):
+                return self.value == other.encode('iso-8859-1')
+            else:
+                return self.value == str(other).encode('iso-8859-1')
 
     def is_content_type(self):
         return False
@@ -350,7 +359,7 @@ class Start(object):
 
 
 _RE_TOKENIZER = re.compile(
-    r"""
+    br"""
     (?P<ctype>
         # Note that a content type match corresponds to a Content-Type header
         # only when it is located between a boundary and an empty line.
@@ -376,7 +385,7 @@ _RE_TOKENIZER = re.compile(
         ^(\r\n|\n)
     )
     """,
-    re.IGNORECASE | re.MULTILINE | re.VERBOSE)
+    re.IGNORECASE | re.MULTILINE | re.VERBOSE | ASCII_FLAG)
 
 
 _CTYPE = 'ctype'
@@ -385,13 +394,13 @@ _END = End()
 _MAX_OPS = 500
 
 
-_SECTION_HEADERS = 'headers'
-_SECTION_MULTIPART_PREAMBLE = 'multipart-preamble'
-_SECTION_MULTIPART_EPILOGUE = 'multipart-epilogue'
-_SECTION_BODY = 'body'
+_SECTION_HEADERS = b'headers'
+_SECTION_MULTIPART_PREAMBLE = b'multipart-preamble'
+_SECTION_MULTIPART_EPILOGUE = b'multipart-epilogue'
+_SECTION_BODY = b'body'
 
-_DEFAULT_CONTENT_TYPE = ContentType('text', 'plain', {'charset': 'us-ascii'})
-_EMPTY_LINE = '\r\n'
+_DEFAULT_CONTENT_TYPE = ContentType(b'text', b'plain', {b'charset': b'us-ascii'})
+_EMPTY_LINE = b'\r\n'
 
 
 def tokenize(string):
@@ -404,7 +413,7 @@ def tokenize(string):
         if m.group(_CTYPE):
             name, token = parsing.parse_header(m.group(_CTYPE))
         elif m.group(_BOUNDARY):
-            token = Boundary(m.group(_BOUNDARY).strip("\t\r\n"),
+            token = Boundary(m.group(_BOUNDARY).strip(b"\t\r\n"),
                              _grab_newline(m.start(), string, -1),
                              _grab_newline(m.end(), string, 1))
         else:
@@ -421,9 +430,9 @@ def _grab_newline(position, string, direction):
     """
     sta(string)  # {u'str': 62, u'str/a': 5320}
     while 0 < position < len(string):
-        if string[position] == '\n':
+        if string[position:position+1] == b'\n':
             if direction < 0:
-                if position - 1 > 0 and string[position-1] == '\r':
+                if position - 1 > 0 and string[position-1] == b'\r':
                     return position - 1
             return position
         position += direction
@@ -503,7 +512,7 @@ def _filter_false_tokens(tokens):
 
 def _strip_endings(value):
     sta(value)  # {u'str/a': 490}
-    if value.endswith("--"):
+    if value.endswith(b"--"):
         return value[:-2]
     else:
         return value

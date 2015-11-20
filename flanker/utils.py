@@ -6,11 +6,11 @@ from __future__ import absolute_import
 import logging
 import re
 
-import cchardet
+import chardet as cchardet
 import chardet
 import six
 
-from flanker.mime.message import errors
+#from flanker.mime.message import errors
 from functools import wraps
 
 from flanker.str_analysis import sta
@@ -46,14 +46,14 @@ def _guess_and_convert_with(value, detector=cchardet):
     charset = detector.detect(value)
 
     if not charset["encoding"]:
-        raise errors.DecodingError("Failed to guess encoding for %s" % (value,))
+        raise Exception("Failed to guess encoding for %s" % (value,))
 
     try:
         value = value.decode(charset["encoding"], "replace")
         return value
 
     except (UnicodeError, LookupError) as e:
-        raise errors.DecodingError(str(e))
+        raise Exception(str(e))
 
 
 def _make_unicode(value, charset=None):

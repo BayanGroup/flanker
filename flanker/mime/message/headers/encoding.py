@@ -18,17 +18,17 @@ log = logging.getLogger(__name__)
 # so we allow just 100 lines for header
 MAX_HEADER_LENGTH = 8000
 
-ADDRESS_HEADERS = ('From', 'To', 'Delivered-To', 'Cc', 'Bcc', 'Reply-To')
+ADDRESS_HEADERS = (b'From', b'To', b'Delivered-To', b'Cc', b'Bcc', b'Reply-To')
 
 
 def to_mime(key, value):
     sta(key)  # {u'str/a': 693}
     sta(value)  # {u"(str/a, <type 'dict'>)": 169, u'str/a': 504, u'uc': 13, u'uc/a': 7}
     if not value:
-        return ""
+        return b""
 
     if type(value) == list:
-        return "; ".join(encode(key, v) for v in value)
+        return b"; ".join(encode(key, v) for v in value)
     else:
         return encode(key, value)
 
@@ -54,50 +54,53 @@ def encode_unstructured(name, value):
         return to_utf8(value)
     try:
         return Header(
-            value.encode("ascii"), "ascii",
-            header_name=name).encode(splitchars=' ;,')
+            value, "ascii",
+            header_name=name).encode(splitchars=b' ;,').encode('iso-8859-1')
     except UnicodeEncodeError:
         if is_address_header(name, value):
             return encode_address_header(name, value)
         else:
             return Header(
                 to_utf8(value), "utf-8",
-                header_name=name).encode(splitchars=' ;,')
+                header_name=name).encode(splitchars=b' ;,').encode('iso-8859-1')
 
 
 def encode_address_header(name, value):
     out = deque()
     for addr in flanker.addresslib.address.parse_list(value):
         out.append(addr.full_spec())
-    return "; ".join(out)
+    return b"; ".join(out)
 
 
 def encode_parametrized(key, value, params):
     if params:
         params = [encode_param(key, n, v) for n, v in six.iteritems(params)]
-        return value + "; " + ("; ".join(params))
+        return value + b"; " + (b"; ".join(params))
     else:
         return value
 
 
 def encode_param(key, name, value):
     try:
-        value = value.encode("ascii")
-        return email.message._formatparam(name, value)
-    except Exception:
-        value = Header(value.encode("utf-8"), "utf-8",  header_name=key).encode(splitchars=' ;,')
-        return email.message._formatparam(name, value)
+        if isinstance(value, six.binary_type):
+            value = value.decode('iso-8859-1')
+        if isinstance(name, six.binary_type):
+            name = name.decode('iso-8859-1')
+        return email.message._formatparam(name, value).encode('iso-8859-1')
+    except Exception as e:
+        value = Header(value, "utf-8",  header_name=key).encode(splitchars=b' ;,')
+        return email.message._formatparam(name, value).encode('iso-8859-1')
 
 
 def encode_string(name, value, maxlinelen=None):
     try:
-        header = Header(value.encode("ascii"), "ascii", maxlinelen,
+        header = Header(value, "ascii", maxlinelen,
                         header_name=name)
     except UnicodeEncodeError:
-        header = Header(value.encode("utf-8"), "utf-8", header_name=name)
+        header = Header(value, "utf-8", header_name=name)
 
-    return header.encode(splitchars=' ;,')
+    return header.encode(splitchars=b' ;,').encode('iso-8859-1')
 
 
 def is_address_header(key, val):
-    return key in ADDRESS_HEADERS and '@' in val
+    return key in ADDRESS_HEADERS and b'@' in val

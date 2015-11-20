@@ -1,4 +1,6 @@
 from __future__ import absolute_import
+
+import base64
 import email.utils
 import email.encoders
 import logging
@@ -22,7 +24,7 @@ from flanker.mime.message.errors import EncodingError, DecodingError
 
 log = logging.getLogger(__name__)
 
-CTE = WithParams('7bit', {})
+CTE = WithParams(b'7bit', {})
 
 class Stream(object):
 
@@ -77,7 +79,7 @@ class Stream(object):
             self.stream.seek(self._body_start)
             self._body = decode_body(
                 self.content_type,
-                self.headers.get('Content-Transfer-Encoding', CTE).value,
+                self.headers.get(b'Content-Transfer-Encoding', CTE).value,
                 self.stream.read(self.end - self._body_start + 1))
 
     def _set_body(self, value):
@@ -101,7 +103,7 @@ def adjust_content_type(content_type, body=None, filename=None):
     """
     sta(content_type)  # {u"(str/a, <type 'dict'>)": 90}
     sta(body)  # {u'none': 8, u'str': 7, u'str/a': 67, u'uc': 7, u'uc/a': 1}
-    if filename and str(content_type) == 'application/octet-stream':
+    if filename and str(content_type) == b'application/octet-stream':
         # check if our internal guess returns anything
         guessed = _guess_type(filename)
         if guessed:
@@ -111,18 +113,18 @@ def adjust_content_type(content_type, body=None, filename=None):
         guessed = mimetypes.guess_type(filename)[0]
         if guessed:
             main, sub = fix_content_type(
-                guessed, default=('application', 'octet-stream'))
+                guessed, default=(b'application', b'octet-stream'))
             content_type = ContentType(main, sub)
 
-    if content_type.main == 'image' and body:
+    if content_type.main == b'image' and body:
         sub = imghdr.what(None, body)
         if sub:
-            content_type = ContentType('image', sub)
+            content_type = ContentType(b'image', sub.encode('iso-8859-1'))
 
-    elif content_type.main == 'audio' and body:
+    elif content_type.main == b'audio' and body:
         sub = audio._whatsnd(body)
         if sub:
-            content_type = ContentType('audio', sub)
+            content_type = ContentType(b'audio', sub.encode('iso-8859-1'))
 
     return content_type
 
@@ -134,11 +136,11 @@ def _guess_type(filename):
     """
 
     # sta(filename)  # OK {u'str/a': 8, u'uc/a': 3}
-    if filename.endswith(".bz2" if isinstance(filename, bytes) else u'.bz2'):
-        return ContentType("application", "x-bzip2")
+    if filename.endswith(b".bz2" if isinstance(filename, bytes) else u'.bz2'):
+        return ContentType(b"application", b"x-bzip2")
 
-    if filename.endswith(".gz" if isinstance(filename, bytes) else u'.gz'):
-        return ContentType("application", "x-gzip")
+    if filename.endswith(b".gz" if isinstance(filename, bytes) else u'.gz'):
+        return ContentType(b"application", b"x-gzip")
 
     return None
 
@@ -148,7 +150,7 @@ class Body(object):
         self, content_type, body, charset=None, disposition=None, filename=None, trust_ctype=False):
         self.headers = headers.MimeHeaders()
         self.body = body
-        self.disposition = disposition or ('attachment' if filename else None)
+        self.disposition = disposition or (b'attachment' if filename else None)
         self.filename = filename
         self.size = len(body)
 
@@ -163,32 +165,32 @@ class Body(object):
             content_type = adjust_content_type(content_type, body, filename)
 
         sta(content_type.main)  # {u'str/a': 80}
-        if content_type.main == 'text':
+        if content_type.main == b'text':
             # the text should have a charset
             if not charset:
-                charset = "utf-8"
+                charset = b"utf-8"
 
             # it should be stored as unicode. period
             self.body = charsets.convert_to_unicode(charset, body)
 
             # let's be simple when possible
-            if charset != 'ascii' and is_pure_ascii(body):
-                charset = 'ascii'
+            if charset != b'ascii' and is_pure_ascii(body):
+                charset = b'ascii'
 
-        self.headers['MIME-Version'] = '1.0'
-        self.headers['Content-Type'] = content_type
+        self.headers[b'MIME-Version'] = b'1.0'
+        self.headers[b'Content-Type'] = content_type
         if charset:
-            content_type.params['charset'] = charset
+            content_type.params[b'charset'] = charset
 
         if self.disposition:
-            self.headers['Content-Disposition'] = WithParams(disposition)
+            self.headers[b'Content-Disposition'] = WithParams(disposition)
             if self.filename:
-                self.headers['Content-Disposition'].params['filename'] = self.filename
-                self.headers['Content-Type'].params['name'] = self.filename
+                self.headers[b'Content-Disposition'].params['filename'] = self.filename
+                self.headers[b'Content-Type'].params['name'] = self.filename
 
     @property
     def content_type(self):
-        return self.headers['Content-Type']
+        return self.headers[b'Content-Type']
 
     def headers_changed(self, ignore_prepends=False):
         return True
@@ -205,13 +207,13 @@ class Part(object):
     def __init__(self, ctype):
         self.headers = headers.MimeHeaders()
         self.body = None
-        self.headers['Content-Type'] = ctype
-        self.headers['MIME-Version'] = '1.0'
+        self.headers[b'Content-Type'] = ctype
+        self.headers[b'MIME-Version'] = '1.0'
         self.size = 0
 
     @property
     def content_type(self):
-        return self.headers['Content-Type']
+        return self.headers[b'Content-Type']
 
     def headers_changed(self, ignore_prepends=False):
         return True
@@ -231,17 +233,17 @@ class RichPartMixin(object):
 
     @property
     def message_id(self):
-        return MessageId.from_string(self.headers.get('Message-Id', ''))
+        return MessageId.from_string(self.headers.get(b'Message-Id', ''))
 
     @message_id.setter
     def message_id(self, value):
         if not MessageId.is_valid(value):
             raise ValueError("invalid message id format")
-        self.headers['Message-Id'] = "<{0}>".format(value)
+        self.headers[b'Message-Id'] = "<{0}>".format(value)
 
     @property
     def subject(self):
-        return self.headers.get('Subject', '')
+        return self.headers.get(b'Subject', '')
 
     @property
     def clean_subject(self):
@@ -258,9 +260,9 @@ class RichPartMixin(object):
 
         See http://www.jwz.org/doc/threading.html for details.
         """
-        refs = list(MessageId.scan(self.headers.get('References', '')))
+        refs = list(MessageId.scan(self.headers.get(b'References', '')))
         if not refs:
-            reply = MessageId.from_string(self.headers.get('In-Reply-To', ''))
+            reply = MessageId.from_string(self.headers.get(b'In-Reply-To', ''))
             if reply:
                 refs.append(reply[0])
         return refs
@@ -274,7 +276,7 @@ class RichPartMixin(object):
         file_name = ctype.params.get('name', '') or ctype.params.get('filename', '')
 
         value, params = self.content_disposition
-        if value in ['attachment', 'inline']:
+        if value in [b'attachment', b'inline']:
             file_name = params.get('filename', '') or file_name
 
         # filenames can be presented as tuples, like:
@@ -309,8 +311,8 @@ class RichPartMixin(object):
 
     def is_body(self):
         return (not self.detected_file_name and
-                (self.content_type.format_type == 'text' or
-                 self.content_type.format_type == 'message'))
+                (self.content_type.format_type == b'text' or
+                 self.content_type.format_type == b'message'))
 
     def is_root(self):
         return self._is_root
@@ -341,18 +343,18 @@ class RichPartMixin(object):
                 yield p
 
     def is_attachment(self):
-        return self.content_disposition[0] == 'attachment'
+        return self.content_disposition[0] == b'attachment'
 
     def is_inline(self):
-        return self.content_disposition[0] == 'inline'
+        return self.content_disposition[0] == b'inline'
 
     def is_delivery_notification(self):
         """
         Tells whether a message is a system delivery notification.
         """
         content_type = self.content_type
-        return (content_type == 'multipart/report'
-                and content_type.params.get('report-type') == 'delivery-status')
+        return (content_type == b'multipart/report'
+                and content_type.params.get('report-type') == b'delivery-status')
 
     def get_attached_message(self):
         """
@@ -360,7 +362,7 @@ class RichPartMixin(object):
         """
         try:
             for part in self.walk(with_self=True):
-                if part.content_type == 'message/rfc822':
+                if part.content_type == b'message/rfc822':
                     for p in part.walk():
                         return p
         except Exception:
@@ -447,16 +449,16 @@ class MimePart(RichPartMixin):
     @property
     def content_disposition(self):
         """ returns tuple (value, params) """
-        return self.headers.get('Content-Disposition', WithParams(None))
+        return self.headers.get(b'Content-Disposition', WithParams(None))
 
     @property
     def content_encoding(self):
         return self.headers.get(
-            'Content-Transfer-Encoding', WithParams('7bit'))
+            b'Content-Transfer-Encoding', WithParams(b'7bit'))
 
     @content_encoding.setter
     def content_encoding(self, value):
-        self.headers['Content-Transfer-Encoding'] = value
+        self.headers[b'Content-Transfer-Encoding'] = value
 
     @property
     def body(self):
@@ -479,9 +481,9 @@ class MimePart(RichPartMixin):
     def charset(self, value):
         charset = value.lower()
         self.content_type.set_charset(value)
-        if 'Content-Type' not in self.headers:
-            self.headers['Content-Type'] = ContentType('text', 'plain', {})
-        self.headers['Content-Type'].params['charset'] = charset
+        if b'Content-Type' not in self.headers:
+            self.headers[b'Content-Type'] = ContentType(b'text', b'plain', {})
+        self.headers[b'Content-Type'].params[b'charset'] = charset
         self.headers.changed = True
 
     def to_string(self):
@@ -590,7 +592,7 @@ def decode_body(content_type, content_encoding, body):
     # decode the transfer encoding
     try:
         body = decode_transfer_encoding(content_encoding, body)
-    except Exception:
+    except Exception as e:
         raise DecodingError("Failed to decode body")
 
     # decode the charset next
@@ -598,16 +600,16 @@ def decode_body(content_type, content_encoding, body):
 
 
 def decode_transfer_encoding(encoding, body):
-    if encoding == 'base64':
-        return email.utils._bdecode(body)
-    elif encoding == 'quoted-printable':
-        return email.utils._qdecode(body)
+    if encoding == b'base64':
+        return base64.b64decode(body)
+    elif encoding == b'quoted-printable':
+        return email.quoprimime.decodestring(body.decode('iso-8859-1'))
     else:
         return body
 
 def decode_charset(ctype, body):
     sta(ctype.main)  # {u'str/a': 61}
-    if ctype.main != 'text':
+    if ctype.main != b'text':
         return body
 
     charset = ctype.get_charset()
@@ -618,7 +620,7 @@ def decode_charset(ctype, body):
     # have a bug there
     sta(ctype.sub)  # {u'str/a': 55}
     sta(body)  # {u'uc': 25, u'uc/a': 30}
-    if ctype.sub =='html' and charset == 'utf-8':
+    if ctype.sub ==b'html' and charset == b'utf-8':
         # Outlook bug
         body = body.replace(u'\xa0', u'&nbsp;')
 
@@ -631,12 +633,12 @@ def encode_body(part):
     body = part._container.body
 
     charset = content_type.get_charset()
-    if content_type.main == 'text':
+    if content_type.main == b'text':
         charset, body = encode_charset(charset, body)
         content_encoding = choose_text_encoding(
             charset, content_encoding, body)
     else:
-        content_encoding = 'base64'
+        content_encoding = b'base64'
 
     body = encode_transfer_encoding(content_encoding, body)
     return charset, content_encoding, body
@@ -644,35 +646,35 @@ def encode_body(part):
 
 def encode_charset(preferred_charset, text):
     try:
-        charset = preferred_charset or 'ascii'
-        text = text.encode(preferred_charset)
+        charset = preferred_charset or b'ascii'
+        text = text.encode(preferred_charset.decode('utf-8'))
     except:
-        charset = 'utf-8'
-        text = text.encode(charset)
+        charset = b'utf-8'
+        text = text.encode(charset.decode('utf-8'))
     return charset, text
 
 
 def encode_transfer_encoding(encoding, body):
-    if encoding == 'quoted-printable':
+    if encoding == b'quoted-printable':
         return email.encoders._qencode(body)
-    elif encoding == 'base64':
+    elif encoding == b'base64':
         return email.encoders._bencode(body)
     else:
         return body
 
 
 def choose_text_encoding(charset, preferred_encoding, body):
-    if charset in ('ascii', 'iso-8859-1', 'us-ascii'):
+    if charset in (b'ascii', b'iso-8859-1', b'us-ascii'):
         if has_long_lines(body):
-            return stronger_encoding(preferred_encoding, 'quoted-printable')
+            return stronger_encoding(preferred_encoding, b'quoted-printable')
         else:
             return preferred_encoding
     else:
-        return stronger_encoding(preferred_encoding, 'base64')
+        return stronger_encoding(preferred_encoding, b'base64')
 
 
 def stronger_encoding(a, b):
-    weights = {'7bit': 0, 'quoted-printable': 1, 'base64': 1, '8bit': 3}
+    weights = {b'7bit': 0, b'quoted-printable': 1, b'base64': 1, b'8bit': 3}
     if weights.get(a, -1) >= weights[b]:
         return a
     return b
@@ -692,7 +694,7 @@ def has_long_lines(text, max_line_len=599):
             return True
     return False
 
-CRLF = "\r\n"
+CRLF = b"\r\n"
 
 class _CounterIO(object):
     def __init__(self):

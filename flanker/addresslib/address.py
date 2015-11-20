@@ -430,8 +430,8 @@ class EmailAddress(Address):
             encoded_display_name = smart_quote(encode_string(
                 None, self.display_name, maxlinelen=MAX_ADDRESS_LENGTH))
             # sta(encoded_display_name)  # OK {u'str/a': 113}
-            return b'{0} <{1}>'.format(encoded_display_name, self.address)
-        return b'{0}'.format(self.address)
+            return encoded_display_name + b' <' + self.address + b'>'
+        return self.address
 
     def to_unicode(self):
         """

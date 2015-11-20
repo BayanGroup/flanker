@@ -15,7 +15,8 @@ import six
 log = logging.getLogger(__name__)
 
 #deal with unfolding
-foldingWhiteSpace = re.compile(r"(\n\r?|\r\n?)(\s*)")
+UNICODE_foldingWhiteSpace = re.compile(u"(\n\r?|\r\n?)(\s*)")
+BYTES_foldingWhiteSpace = re.compile(b"(\n\r?|\r\n?)(\s*)")
 
 
 def unfold(value):
@@ -26,7 +27,10 @@ def unfold(value):
     evaluation.
     """
     sta(value)  # {u'str': 6, u'str/a': 7438, u'uc': 69, u'uc/a': 152}
-    return re.sub(foldingWhiteSpace, r"\2", value)
+    if isinstance(value, six.binary_type):
+        return re.sub(BYTES_foldingWhiteSpace, br"\2", value)
+    else:
+        return re.sub(UNICODE_foldingWhiteSpace, u"\2", value)
 
 
 def decode(header):
@@ -47,11 +51,13 @@ def mime_to_unicode(header):
     >>> header_to_unicode("hello")
         u"Hello"
     """
-    sta(header)  # {u"(none, <type 'dict'>)": 9, u"(str/a, <type 'dict'>)": 354, u"<type 'int'>": 4, u'none': 1, u'str/a': 396, u'uc': 69, u'uc/a': 152}
+    sta(header)  # {u"(none, <class 'dict'>)": 2, u"(str/a, <class 'dict'>)": 124, u'str/a': 27}
     # Only string header values need to be converted.
     if not isinstance(header, (six.text_type, six.binary_type)):
         return header
 
+    if isinstance(header, six.binary_type):
+        header = header.decode('iso-8859-1')
     try:
         header = unfold(header)
         decoded = []  # decoded parts
@@ -70,7 +76,9 @@ def mime_to_unicode(header):
                     match.group('charset').lower(),
                     match.group('encoding').lower(),
                     match.group('encoded'))
-                decoded.append(charsets.convert_to_unicode(charset, value))
+                if isinstance(value, six.text_type):
+                    value = value.encode('iso-8859-1')  # walk-around for email.quoprimime.header_decode always returning str
+                decoded.append(charsets.convert_to_unicode(charset.encode('iso-8859-1'), value))
                 header = header[match.end():]
             else:
                 # no match? append the remainder
@@ -78,7 +86,7 @@ def mime_to_unicode(header):
                 decoded.append(charsets.convert_to_unicode(ascii, header))
                 break
         return u"".join(decoded)
-    except Exception:
+    except Exception as e:
         try:
             log.warning(
                 u"HEADER-DECODE-FAIL: ({0}) - b64encoded".format(
@@ -92,7 +100,7 @@ ascii = 'ascii'
 
 #this spec refers to
 #http://tools.ietf.org/html/rfc2047
-encodedWord = re.compile(r'''(?P<encodedWord>
+encodedWord = re.compile(u'''(?P<encodedWord>
   =\?                  # literal =?
   (?P<charset>[^?]*?)  # non-greedy up to the next ? is the charset
   \?                   # literal ?
@@ -111,6 +119,7 @@ def decode_part(charset, encoding, value):
 
     Returns (charset, decoded-string)
     """
+    sta(encoding)
     if encoding == 'q':
         return (charset, email.quoprimime.header_decode(str(value)))
 

@@ -27,24 +27,24 @@ def decode(header):
 
 
 def is_parametrized(name, value):
-    return name in ("Content-Type", "Content-Disposition",
-                    "Content-Transfer-Encoding")
+    return name in (b"Content-Type", b"Content-Disposition",
+                    b"Content-Transfer-Encoding")
 
 
 def fix_content_type(value, default=None):
     """Content-Type value may be badly broken"""
     if not value:
-        return default or ('text', 'plain')
+        return default or (b'text', b'plain')
     sta(value)  # {u'str/a': 2985}
-    values = value.lower().split("/")
+    values = value.lower().split(b"/")
     if len(values) >= 2:
         return values[:2]
     elif len(values) == 1:
-        if values[0] == 'text':
-            return 'text', 'plain'
-        elif values[0] == 'html':
-            return 'text', 'html'
-        return 'application', 'octet-stream'
+        if values[0] == b'text':
+            return b'text', b'plain'
+        elif values[0] == b'html':
+            return b'text', b'html'
+        return b'application', b'octet-stream'
 
 
 def split(header):
@@ -104,7 +104,7 @@ def concatenate(parts):
         # old-style parameters do not support any continuations
         return encodedword.mime_to_unicode(get_value(part))
     else:
-        return u"".join(
+        return b"".join(
             decode_new_style(p) for p in partition(parts))
 
 
@@ -194,7 +194,7 @@ def decode_charset(parameter):
     to unicode """
     v = get_value(parameter)
     sta(v)  # {u'str/a': 2}
-    parts = v.split("'", 2)
+    parts = v.split(b"'", 2)
     if len(parts) != 3:
         return v
     charset, language, val = parts
@@ -204,7 +204,7 @@ def decode_charset(parameter):
 
 def unquote(parameter):
     """Simply removes quotes"""
-    return get_value(parameter).strip('"')
+    return get_value(parameter).strip(b'"')
 
 
 def parameter(ptype, key, value):
@@ -215,7 +215,7 @@ def parameter(ptype, key, value):
 
 
 def is_quoted(part):
-    return get_value(part)[0] == '"'
+    return get_value(part)[0:1] == b'"'
 
 
 def is_new_style(parameter):
@@ -247,7 +247,7 @@ def join_parameters(parts):
         return parameter(p[0], p[1], joined)
 
 # used to split header value and parameters
-headerValue = re.compile(r"""
+headerValue = re.compile(br"""
        # don't care about the spaces
        ^[\ \t]*
        #main type and sub type or any other value
@@ -256,7 +256,7 @@ headerValue = re.compile(r"""
        [\ \t;]*""", re.IGNORECASE | re.VERBOSE)
 
 
-oldStyleParameter = re.compile(r"""
+oldStyleParameter = re.compile(br"""
      # according to rfc1342, param value can be encoded-word
      # and it's actually very popular, so detect this parameter first
      ^
@@ -286,7 +286,7 @@ oldStyleParameter = re.compile(r"""
 """, re.IGNORECASE | re.VERBOSE)
 
 
-newStyleParameter = re.compile(r"""
+newStyleParameter = re.compile(br"""
      # Here we grab anything that looks like a parameter
      ^
      # skip spaces
@@ -318,4 +318,4 @@ newStyleParameter = re.compile(r"""
 """, re.IGNORECASE | re.VERBOSE)
 
 reverseContinuation = re.compile(
-    "^(?P<encoded>\*)?(?P<part>\d+\*)?(?P<key>.*)")
+    b"^(?P<encoded>\*)?(?P<part>\d+\*)?(?P<key>.*)")

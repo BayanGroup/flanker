@@ -6,6 +6,7 @@ from collections import defaultdict, deque
 import _sre
 import yaml
 import redis
+import six
 
 sta_data = {}
 
@@ -32,26 +33,26 @@ def statype(var):
         return "list(" + ", ".join(list(set(statype(x) for x in var))) + ")"
     elif isinstance(var, deque):
         return "deque(" + ", ".join(list(set(statype(x) for x in var))) + ")"
-    elif isinstance(var, str):
+    elif isinstance(var, six.binary_type):
         try:
             var.decode('ascii')
             return 'str/a'
         except:
             return 'str'
-    elif isinstance(var, unicode):
+    elif isinstance(var, six.text_type):
         try:
             var.encode('ascii')
             return 'uc/a'
         except:
             return 'uc'
     elif isinstance(var, retype):
-        if isinstance(var.pattern, unicode) and var.flags & re.UNICODE > 0:
+        if isinstance(var.pattern, six.text_type) and var.flags & re.UNICODE > 0:
             return 're/uu'
-        elif isinstance(var.pattern, unicode) and var.flags & re.UNICODE == 0:
+        elif isinstance(var.pattern, six.text_type) and var.flags & re.UNICODE == 0:
             return 're/u-'
-        elif isinstance(var.pattern, str) and var.flags & re.UNICODE > 0:
+        elif isinstance(var.pattern, six.binary_type) and var.flags & re.UNICODE > 0:
             return 're/b?'
-        elif isinstance(var.pattern, str) and var.flags & re.UNICODE == 0:
+        elif isinstance(var.pattern, six.binary_type) and var.flags & re.UNICODE == 0:
             return 're/b-'
         else:
             return 're/??'

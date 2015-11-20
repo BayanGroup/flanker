@@ -39,6 +39,7 @@ def smart_unquote(s):
         quote_char = b'"'
         escape_char = b'\\'
         unquoted = BytesIO()
+        s = [s[i:i+1] for i in range(len(s))]
     escaped_char = False
     is_quoted_section = False
     for c in s:

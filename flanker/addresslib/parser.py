@@ -342,7 +342,7 @@ class _AddressParser(object):
         if earl is None:
             return None
         #TODO: Better handle non-ascii urls, specially in hostname part
-        return flanker.addresslib.address.UrlAddress(to_utf8(earl))
+        return flanker.addresslib.address.UrlAddress(earl)
 
     def _name_addr_rfc(self):
         """
