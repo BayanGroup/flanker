@@ -507,7 +507,7 @@ class _AddressParser(object):
 
         # sta(wrds)  # OK {u'list(str/a)': 687, u'list(uc/a)': 6, u'list(uc/a, uc)': 23}
 
-        concatenator = b'' if isinstance(self.stream, six.binary_type) else u''
+        concatenator = b'' if isinstance(self.stream.stream, six.binary_type) else u''
         return cleanup_display_name(concatenator.join(wrds))
 
     def _angle_addr_lax(self):
