@@ -176,7 +176,7 @@ def grab_headers(pointer, iterator, parent):
             break
 
     return make_part(
-        content_type=content_type or ContentType(b"text", b"plain"),
+        content_type=content_type or ContentType(u"text", u"plain"),
         start=pointer,
         end=end,
         iterator=iterator,
@@ -184,7 +184,7 @@ def grab_headers(pointer, iterator, parent):
 
 
 def default_content_type():
-    return ContentType(b"text", b"plain", {b'charset': b'ascii'})
+    return ContentType(u"text", u"plain", {u'charset': u'ascii'})
 
 
 def make_part(content_type, start, end, iterator, parts=[], enclosed=None,
@@ -284,7 +284,7 @@ class TokensIterator(object):
 @six.python_2_unicode_compatible
 class Boundary(object):
     def __init__(self, value, start, end, final=None):
-        self.value = value
+        self.value = value.decode('utf-8')
         self.start = start
         self.end = end
         self.final = final
@@ -307,11 +307,11 @@ class Boundary(object):
             return self.value == other.value and self.final == other.final
         else:
             if isinstance(other, six.binary_type):
-                return self.value == other
+                return self.value == other.decode('iso-8859-1')
             elif isinstance(other, six.text_type):
-                return self.value == other.encode('iso-8859-1')
+                return self.value == other
             else:
-                return self.value == str(other).encode('iso-8859-1')
+                return self.value == str(other)
 
     def is_content_type(self):
         return False
@@ -399,7 +399,7 @@ _SECTION_MULTIPART_PREAMBLE = b'multipart-preamble'
 _SECTION_MULTIPART_EPILOGUE = b'multipart-epilogue'
 _SECTION_BODY = b'body'
 
-_DEFAULT_CONTENT_TYPE = ContentType(b'text', b'plain', {b'charset': b'us-ascii'})
+_DEFAULT_CONTENT_TYPE = ContentType(u'text', u'plain', {u'charset': u'us-ascii'})
 _EMPTY_LINE = b'\r\n'
 
 
@@ -512,7 +512,7 @@ def _filter_false_tokens(tokens):
 
 def _strip_endings(value):
     sta(value)  # {u'str/a': 490}
-    if value.endswith(b"--"):
+    if value.endswith(u"--"):
         return value[:-2]
     else:
         return value

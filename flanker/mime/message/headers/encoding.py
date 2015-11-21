@@ -55,29 +55,29 @@ def encode_unstructured(name, value):
     try:
         return Header(
             value, "ascii",
-            header_name=name).encode(splitchars=b' ;,').encode('iso-8859-1')
+            header_name=name).encode(splitchars=u' ;,').encode('iso-8859-1')
     except UnicodeEncodeError:
         if is_address_header(name, value):
             return encode_address_header(name, value)
         else:
             return Header(
                 to_utf8(value), "utf-8",
-                header_name=name).encode(splitchars=b' ;,').encode('iso-8859-1')
+                header_name=name).encode(splitchars=u' ;,').encode('iso-8859-1')
 
 
 def encode_address_header(name, value):
     out = deque()
     for addr in flanker.addresslib.address.parse_list(value):
         out.append(addr.full_spec())
-    return b"; ".join(out)
+    return u"; ".join(out)
 
 
 def encode_parametrized(key, value, params):
     if params:
         params = [encode_param(key, n, v) for n, v in six.iteritems(params)]
-        return value + b"; " + (b"; ".join(params))
+        return value.encode('iso-8859-1') + b"; " + (b"; ".join(params))
     else:
-        return value
+        return value.encode('iso-8859-1')
 
 
 def encode_param(key, name, value):
@@ -88,7 +88,7 @@ def encode_param(key, name, value):
             name = name.decode('iso-8859-1')
         return email.message._formatparam(name, value).encode('iso-8859-1')
     except Exception as e:
-        value = Header(value, "utf-8",  header_name=key).encode(splitchars=b' ;,')
+        value = Header(value, "utf-8",  header_name=key).encode(splitchars=u' ;,')
         return email.message._formatparam(name, value).encode('iso-8859-1')
 
 
@@ -99,8 +99,8 @@ def encode_string(name, value, maxlinelen=None):
     except UnicodeEncodeError:
         header = Header(value, "utf-8", header_name=name)
 
-    return header.encode(splitchars=b' ;,').encode('iso-8859-1')
+    return header.encode(splitchars=u' ;,').encode('iso-8859-1')
 
 
 def is_address_header(key, val):
-    return key in ADDRESS_HEADERS and b'@' in val
+    return key in ADDRESS_HEADERS and u'@' in val

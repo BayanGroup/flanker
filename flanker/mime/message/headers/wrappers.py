@@ -33,7 +33,7 @@ class ContentType(tuple):
     def __new__(self, main, sub, params=None):
         sta((main, sub))  # {u'(str/a, str/a)': 3513}
         return tuple.__new__(
-            self, (main.lower() + b'/' + sub.lower(), params or {}))
+            self, (main.lower() + u'/' + sub.lower(), params or {}))
 
     def __init__(self, main, sub, params={}):
         sta((main, sub))  # {u'(str/a, str/a)': 3513}
@@ -50,11 +50,11 @@ class ContentType(tuple):
 
     @property
     def format_type(self):
-        return tuple.__getitem__(self, 0).split(b'/')[0]
+        return tuple.__getitem__(self, 0).split(u'/')[0]
 
     @property
     def subtype(self):
-        return tuple.__getitem__(self, 0).split(b'/')[1]
+        return tuple.__getitem__(self, 0).split(u'/')[1]
 
     def is_content_type(self):
         return True
@@ -66,12 +66,12 @@ class ContentType(tuple):
         return False
 
     def is_singlepart(self):
-        return self.main != b'multipart' and\
-            self.main != b'message' and\
+        return self.main != u'multipart' and\
+            self.main != u'message' and\
             not self.is_headers_container()
 
     def is_multipart(self):
-        return self.main == b'multipart'
+        return self.main == u'multipart'
 
     def is_headers_container(self):
         return self.is_feedback_report() or \
@@ -80,44 +80,44 @@ class ContentType(tuple):
             self.is_disposition_notification()
 
     def is_rfc_headers(self):
-        return self == b'text/rfc822-headers'
+        return self == u'text/rfc822-headers'
 
     def is_message_external_body(self):
-        return self == b'message/external-body'
+        return self == u'message/external-body'
 
     def is_message_container(self):
-        return self == b'message/rfc822' or self == 'message/news'
+        return self == u'message/rfc822' or self == 'message/news'
 
     def is_disposition_notification(self):
-        return self == b'message/disposition-notification'
+        return self == u'message/disposition-notification'
 
     def is_delivery_status(self):
-        return self == b'message/delivery-status'
+        return self == u'message/delivery-status'
 
     def is_feedback_report(self):
-        return self == b'message/feedback-report'
+        return self == u'message/feedback-report'
 
     def is_delivery_report(self):
-        return self == b'multipart/report'
+        return self == u'multipart/report'
 
     def get_boundary(self):
-        return self.params.get(b"boundary")
+        return self.params.get(u"boundary")
 
     def get_boundary_line(self, final=False):
-        return b"--" + self.get_boundary() + (b"--" if final else b"")
+        return u"--" + self.get_boundary() + (u"--" if final else u"")
 
     def get_charset(self):
-        default = b'ascii' if self.main == b'text' else None
-        c = self.params.get(b"charset", default)
+        default = u'ascii' if self.main == u'text' else None
+        c = self.params.get(u"charset", default)
         if c:
             c = c.lower()
         return c
 
     def set_charset(self, value):
-        self.params[b"charset"] = value.lower()
+        self.params[u"charset"] = value.lower()
 
     def __str__(self):
-        return self.main.decode('utf-8') + u"/" + self.sub.decode('utf-8')
+        return self.main + u"/" + self.sub
 
     def __eq__(self, other):
         if isinstance(other, ContentType):
@@ -143,7 +143,7 @@ class ContentType(tuple):
 
 class MessageId(six.binary_type):
 
-    RE_ID = re.compile(b"<([^<>]+)>", re.I)
+    RE_ID = re.compile(u"<([^<>]+)>", re.I)
     MIN_LENGTH = 5
     MAX_LENGTH = 256
 
@@ -153,7 +153,7 @@ class MessageId(six.binary_type):
 
     def __clean(self):
         sta(self)  # {u'str/a': 164}
-        return self.replace(b'"', b'').replace(b"'", b'')
+        return self.replace(u'"', u'').replace(u"'", u'')
 
     def __hash__(self):
         return hash(self.__clean())
@@ -175,10 +175,10 @@ class MessageId(six.binary_type):
     @classmethod
     def generate(cls, domain=None):
         sta(domain)
-        message_id = make_msgid().strip(b"<>")
+        message_id = make_msgid().strip(u"<>")
         if domain:
-            local = message_id.split(b'@')[0]
-            message_id = local + b'@' + domain
+            local = message_id.split(u'@')[0]
+            message_id = local + u'@' + domain
         return cls(message_id)
 
     @classmethod
@@ -197,7 +197,7 @@ class MessageId(six.binary_type):
 
 
 class Subject(six.text_type):
-    RE_RE = re.compile(b"((RE|FW|FWD|HA)([[]\d])*:\s*)*", re.I)
+    RE_RE = re.compile(u"((RE|FW|FWD|HA)([[]\d])*:\s*)*", re.I)
 
     def __new__(cls, *args, **kw):
         sta(args)  # OK {u'(uc/a)': 1}
@@ -205,4 +205,4 @@ class Subject(six.text_type):
 
     def strip_replies(self):
         sta(self)  # {u'uc/a': 1}
-        return self.RE_RE.sub(b'', self)
+        return self.RE_RE.sub(u'', self)

@@ -41,13 +41,13 @@ class FallbackMimePart(RichPartMixin):
     @property
     def content_disposition(self):
         try:
-            return parametrized.decode(self._m.get('Content-Disposition', ''))
+            return parametrized.decode(self._m.get(b'Content-Disposition', ''))
         except:
             return None, {}
 
     @property
     def content_encoding(self):
-        return self._m.get('Content-Transfer-Encoding')
+        return self._m.get(b'Content-Transfer-Encoding')
 
     @content_encoding.setter
     def content_encoding(self, value):
@@ -61,11 +61,11 @@ class FallbackMimePart(RichPartMixin):
         if self.content_type.is_delivery_status():
             self._body = self._m.get_payload(decode=True)
             if self._body is None:
-                self._body = "\r\n".join(six.binary_type(p) for p in self._m.get_payload())
+                self._body = u"\r\n".join(p for p in self._m.get_payload())
 
         elif not self._m.is_multipart():
             self._body = self._m.get_payload(decode=True)
-            if self._m.get_content_maintype() == 'text':
+            if self._m.get_content_maintype() == u'text':
                 self._body = convert_to_unicode(self.charset, self._body)
 
         return self._body
@@ -110,7 +110,7 @@ class FallbackMimePart(RichPartMixin):
 
     @property
     def enclosed(self):
-        if self.content_type == 'message/rfc822':
+        if self.content_type == u'message/rfc822':
             return FallbackMimePart(self._m.get_payload()[0])
 
     def enclose(self, message):

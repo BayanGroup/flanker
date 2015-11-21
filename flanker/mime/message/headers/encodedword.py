@@ -78,7 +78,7 @@ def mime_to_unicode(header):
                     match.group('encoded'))
                 if isinstance(value, six.text_type):
                     value = value.encode('iso-8859-1')  # walk-around for email.quoprimime.header_decode always returning str
-                decoded.append(charsets.convert_to_unicode(charset.encode('iso-8859-1'), value))
+                decoded.append(charsets.convert_to_unicode(charset, value))
                 header = header[match.end():]
             else:
                 # no match? append the remainder

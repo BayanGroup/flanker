@@ -24,7 +24,7 @@ from flanker.mime.message.errors import EncodingError, DecodingError
 
 log = logging.getLogger(__name__)
 
-CTE = WithParams(b'7bit', {})
+CTE = WithParams(u'7bit', {})
 
 class Stream(object):
 
@@ -103,7 +103,7 @@ def adjust_content_type(content_type, body=None, filename=None):
     """
     sta(content_type)  # {u"(str/a, <type 'dict'>)": 90}
     sta(body)  # {u'none': 8, u'str': 7, u'str/a': 67, u'uc': 7, u'uc/a': 1}
-    if filename and str(content_type) == b'application/octet-stream':
+    if filename and str(content_type) == u'application/octet-stream':
         # check if our internal guess returns anything
         guessed = _guess_type(filename)
         if guessed:
@@ -113,18 +113,18 @@ def adjust_content_type(content_type, body=None, filename=None):
         guessed = mimetypes.guess_type(filename)[0]
         if guessed:
             main, sub = fix_content_type(
-                guessed, default=(b'application', b'octet-stream'))
+                guessed, default=(u'application', u'octet-stream'))
             content_type = ContentType(main, sub)
 
-    if content_type.main == b'image' and body:
+    if content_type.main == u'image' and body:
         sub = imghdr.what(None, body)
         if sub:
-            content_type = ContentType(b'image', sub.encode('iso-8859-1'))
+            content_type = ContentType(u'image', sub)
 
-    elif content_type.main == b'audio' and body:
+    elif content_type.main == u'audio' and body:
         sub = audio._whatsnd(body)
         if sub:
-            content_type = ContentType(b'audio', sub.encode('iso-8859-1'))
+            content_type = ContentType(u'audio', sub)
 
     return content_type
 
@@ -136,11 +136,11 @@ def _guess_type(filename):
     """
 
     # sta(filename)  # OK {u'str/a': 8, u'uc/a': 3}
-    if filename.endswith(b".bz2" if isinstance(filename, bytes) else u'.bz2'):
-        return ContentType(b"application", b"x-bzip2")
+    if filename.endswith(u".bz2" if isinstance(filename, bytes) else u'.bz2'):
+        return ContentType(u"application", u"x-bzip2")
 
-    if filename.endswith(b".gz" if isinstance(filename, bytes) else u'.gz'):
-        return ContentType(b"application", b"x-gzip")
+    if filename.endswith(u".gz" if isinstance(filename, bytes) else u'.gz'):
+        return ContentType(u"application", u"x-gzip")
 
     return None
 
@@ -150,7 +150,7 @@ class Body(object):
         self, content_type, body, charset=None, disposition=None, filename=None, trust_ctype=False):
         self.headers = headers.MimeHeaders()
         self.body = body
-        self.disposition = disposition or (b'attachment' if filename else None)
+        self.disposition = disposition or (u'attachment' if filename else None)
         self.filename = filename
         self.size = len(body)
 
@@ -165,22 +165,22 @@ class Body(object):
             content_type = adjust_content_type(content_type, body, filename)
 
         sta(content_type.main)  # {u'str/a': 80}
-        if content_type.main == b'text':
+        if content_type.main == u'text':
             # the text should have a charset
             if not charset:
-                charset = b"utf-8"
+                charset = u"utf-8"
 
             # it should be stored as unicode. period
             self.body = charsets.convert_to_unicode(charset, body)
 
             # let's be simple when possible
-            if charset != b'ascii' and is_pure_ascii(body):
-                charset = b'ascii'
+            if charset != u'ascii' and is_pure_ascii(body):
+                charset = u'ascii'
 
-        self.headers[b'MIME-Version'] = b'1.0'
+        self.headers[b'MIME-Version'] = u'1.0'
         self.headers[b'Content-Type'] = content_type
         if charset:
-            content_type.params[b'charset'] = charset
+            content_type.params['charset'] = charset
 
         if self.disposition:
             self.headers[b'Content-Disposition'] = WithParams(disposition)
@@ -276,7 +276,7 @@ class RichPartMixin(object):
         file_name = ctype.params.get('name', '') or ctype.params.get('filename', '')
 
         value, params = self.content_disposition
-        if value in [b'attachment', b'inline']:
+        if value in [u'attachment', u'inline']:
             file_name = params.get('filename', '') or file_name
 
         # filenames can be presented as tuples, like:
@@ -311,8 +311,8 @@ class RichPartMixin(object):
 
     def is_body(self):
         return (not self.detected_file_name and
-                (self.content_type.format_type == b'text' or
-                 self.content_type.format_type == b'message'))
+                (self.content_type.format_type == u'text' or
+                 self.content_type.format_type == u'message'))
 
     def is_root(self):
         return self._is_root
@@ -343,18 +343,18 @@ class RichPartMixin(object):
                 yield p
 
     def is_attachment(self):
-        return self.content_disposition[0] == b'attachment'
+        return self.content_disposition[0] == u'attachment'
 
     def is_inline(self):
-        return self.content_disposition[0] == b'inline'
+        return self.content_disposition[0] == u'inline'
 
     def is_delivery_notification(self):
         """
         Tells whether a message is a system delivery notification.
         """
         content_type = self.content_type
-        return (content_type == b'multipart/report'
-                and content_type.params.get('report-type') == b'delivery-status')
+        return (content_type == u'multipart/report'
+                and content_type.params.get('report-type') == u'delivery-status')
 
     def get_attached_message(self):
         """
@@ -362,7 +362,7 @@ class RichPartMixin(object):
         """
         try:
             for part in self.walk(with_self=True):
-                if part.content_type == b'message/rfc822':
+                if part.content_type == u'message/rfc822':
                     for p in part.walk():
                         return p
         except Exception:
@@ -454,7 +454,7 @@ class MimePart(RichPartMixin):
     @property
     def content_encoding(self):
         return self.headers.get(
-            b'Content-Transfer-Encoding', WithParams(b'7bit'))
+            b'Content-Transfer-Encoding', WithParams(u'7bit'))
 
     @content_encoding.setter
     def content_encoding(self, value):
@@ -482,8 +482,8 @@ class MimePart(RichPartMixin):
         charset = value.lower()
         self.content_type.set_charset(value)
         if b'Content-Type' not in self.headers:
-            self.headers[b'Content-Type'] = ContentType(b'text', b'plain', {})
-        self.headers[b'Content-Type'].params[b'charset'] = charset
+            self.headers[b'Content-Type'] = ContentType(u'text', u'plain', {})
+        self.headers[b'Content-Type'].params[u'charset'] = charset
         self.headers.changed = True
 
     def to_string(self):
@@ -579,10 +579,10 @@ class MimePart(RichPartMixin):
                     sta(boundary)  # {u'str/a': 141}
                     sta(part)  # {u"<class 'flanker.mime.message.part.MimePart'>": 141}
                     out.write(
-                        (CRLF if index != 0 else b"") + boundary + CRLF)
+                        (CRLF if index != 0 else b"") + boundary.encode('utf-8') + CRLF)
                     part.to_stream(out)
-                sta(ctype.get_boundary_line(final=True))  # {u'str/a': 40}
-                out.write(CRLF + ctype.get_boundary_line(final=True) + CRLF)
+                sta(ctype.get_boundary_line(final=True).encode('utf-8'))  # {u'str/a': 40}
+                out.write(CRLF + ctype.get_boundary_line(final=True).encode('utf-8') + CRLF)
 
             elif ctype.is_message_container():
                 self.enclosed.to_stream(out)
@@ -600,16 +600,16 @@ def decode_body(content_type, content_encoding, body):
 
 
 def decode_transfer_encoding(encoding, body):
-    if encoding == b'base64':
+    if encoding == 'base64':
         return base64.b64decode(body)
-    elif encoding == b'quoted-printable':
-        return email.quoprimime.decodestring(body.decode('iso-8859-1'))
+    elif encoding == 'quoted-printable':
+        return email.quoprimime.body_decode(body.decode('iso-8859-1'))
     else:
         return body
 
 def decode_charset(ctype, body):
     sta(ctype.main)  # {u'str/a': 61}
-    if ctype.main != b'text':
+    if ctype.main != 'text':
         return body
 
     charset = ctype.get_charset()
@@ -620,7 +620,7 @@ def decode_charset(ctype, body):
     # have a bug there
     sta(ctype.sub)  # {u'str/a': 55}
     sta(body)  # {u'uc': 25, u'uc/a': 30}
-    if ctype.sub ==b'html' and charset == b'utf-8':
+    if ctype.sub =='html' and charset == 'utf-8':
         # Outlook bug
         body = body.replace(u'\xa0', u'&nbsp;')
 
@@ -633,12 +633,12 @@ def encode_body(part):
     body = part._container.body
 
     charset = content_type.get_charset()
-    if content_type.main == b'text':
+    if content_type.main == 'text':
         charset, body = encode_charset(charset, body)
         content_encoding = choose_text_encoding(
             charset, content_encoding, body)
     else:
-        content_encoding = b'base64'
+        content_encoding = 'base64'
 
     body = encode_transfer_encoding(content_encoding, body)
     return charset, content_encoding, body
@@ -646,35 +646,34 @@ def encode_body(part):
 
 def encode_charset(preferred_charset, text):
     try:
-        charset = preferred_charset or b'ascii'
-        text = text.encode(preferred_charset.decode('utf-8'))
+        charset = preferred_charset or 'ascii'
+        text = text.encode(preferred_charset)
     except:
-        charset = b'utf-8'
-        text = text.encode(charset.decode('utf-8'))
+        charset = 'utf-8'
+        text = text.encode(charset)
     return charset, text
 
 
 def encode_transfer_encoding(encoding, body):
-    if encoding == b'quoted-printable':
-        return email.encoders._qencode(body)
-    elif encoding == b'base64':
-        return email.encoders._bencode(body)
+    if encoding == 'quoted-printable':
+        return email.quoprimime.body_encode(body.decode('iso-8859-1')).encode('iso-8859-1')
+    elif encoding == 'base64':
+        return base64.b64encode(body)
     else:
         return body
 
-
 def choose_text_encoding(charset, preferred_encoding, body):
-    if charset in (b'ascii', b'iso-8859-1', b'us-ascii'):
+    if charset in ('ascii', 'iso-8859-1', 'us-ascii'):
         if has_long_lines(body):
-            return stronger_encoding(preferred_encoding, b'quoted-printable')
+            return stronger_encoding(preferred_encoding, 'quoted-printable')
         else:
             return preferred_encoding
     else:
-        return stronger_encoding(preferred_encoding, b'base64')
+        return stronger_encoding(preferred_encoding, 'base64')
 
 
 def stronger_encoding(a, b):
-    weights = {b'7bit': 0, b'quoted-printable': 1, b'base64': 1, b'8bit': 3}
+    weights = {'7bit': 0, 'quoted-printable': 1, 'base64': 1, '8bit': 3}
     if weights.get(a, -1) >= weights[b]:
         return a
     return b

@@ -15,14 +15,14 @@ def multipart(subtype):
     return MimePart(
         container=Part(
             ContentType(
-                b"multipart", subtype, {b"boundary": uuid.uuid4().hex.encode('iso-8859-1')})),
+                u"multipart", subtype, {u"boundary": uuid.uuid4().hex})),
         is_root=True)
 
 
 def message_container(message):
     # sta(message) /
     part = MimePart(
-        container=Part(ContentType(b"message", b"rfc822")),
+        container=Part(ContentType(u"message", u"rfc822")),
         enclosed=message)
     message.set_root(False)
     return part
@@ -33,7 +33,7 @@ def text(subtype, body, charset=None, disposition=None, filename=None):
     sta(body)  # {u'str': 1, u'str/a': 61, u'uc': 7, u'uc/a': 1}
     return MimePart(
         container=Body(
-            content_type=ContentType(b"text", subtype),
+            content_type=ContentType(u"text", subtype),
             body=body,
             charset=charset,
             disposition=disposition,
@@ -67,19 +67,19 @@ def attachment(content_type, body, filename=None,
 
     # fix and sanitize content type string and get main and sub parts:
     main, sub = fix_content_type(
-        content_type, default=(b'application', b'octet-stream'))
+        content_type, default=(u'application', u'octet-stream'))
 
     # adjust content type based on body or filename if it's not too accurate
     content_type = adjust_content_type(
         ContentType(main, sub), body, filename)
 
-    if content_type.main == b'message':
+    if content_type.main == u'message':
         try:
             message = message_container(from_string(body))
             message.headers[b'Content-Disposition'] = WithParams(disposition)
             return message
         except DecodingError:
-            content_type = ContentType(b'application', b'octet-stream')
+            content_type = ContentType(u'application', u'octet-stream')
     return binary(
         content_type.main,
         content_type.sub,

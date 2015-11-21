@@ -8,11 +8,11 @@ import six
 
 def convert_to_unicode(charset, value):
     sta(value)  # OK {u'str': 175, u'str/a': 467, u'uc': 76, u'uc/a': 199}
-    #charset -> bytes
+    #charset -> unicode
     #in case of unicode we have nothing to do
     if isinstance(value, six.text_type):
         return value
-    charset = charset.decode('utf-8')
+    charset = charset
 
     charset = _translate_charset(charset)
 

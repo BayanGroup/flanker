@@ -34,17 +34,17 @@ def is_parametrized(name, value):
 def fix_content_type(value, default=None):
     """Content-Type value may be badly broken"""
     if not value:
-        return default or (b'text', b'plain')
+        return default or (u'text', u'plain')
     sta(value)  # {u'str/a': 2985}
-    values = value.lower().split(b"/")
+    values = value.lower().split(u"/")
     if len(values) >= 2:
         return values[:2]
     elif len(values) == 1:
-        if values[0] == b'text':
-            return b'text', b'plain'
-        elif values[0] == b'html':
-            return b'text', b'html'
-        return b'application', b'octet-stream'
+        if values[0] == u'text':
+            return u'text', u'plain'
+        elif values[0] == u'html':
+            return u'text', u'html'
+        return u'application', u'octet-stream'
 
 
 def split(header):
@@ -104,7 +104,7 @@ def concatenate(parts):
         # old-style parameters do not support any continuations
         return encodedword.mime_to_unicode(get_value(part))
     else:
-        return b"".join(
+        return u"".join(
             decode_new_style(p) for p in partition(parts))
 
 
@@ -194,17 +194,18 @@ def decode_charset(parameter):
     to unicode """
     v = get_value(parameter)
     sta(v)  # {u'str/a': 2}
-    parts = v.split(b"'", 2)
+    parts = v.split(u"'", 2)
     if len(parts) != 3:
         return v
     charset, language, val = parts
-    val = urllib.unquote(val)
+    from six.moves.urllib.parse import unquote
+    val = unquote(val)
     return charsets.convert_to_unicode(charset, val)
 
 
 def unquote(parameter):
     """Simply removes quotes"""
-    return get_value(parameter).strip(b'"')
+    return get_value(parameter).strip(u'"')
 
 
 def parameter(ptype, key, value):
@@ -215,7 +216,7 @@ def parameter(ptype, key, value):
 
 
 def is_quoted(part):
-    return get_value(part)[0:1] == b'"'
+    return get_value(part)[0:1] == u'"'
 
 
 def is_new_style(parameter):
@@ -247,7 +248,7 @@ def join_parameters(parts):
         return parameter(p[0], p[1], joined)
 
 # used to split header value and parameters
-headerValue = re.compile(br"""
+headerValue = re.compile(u"""
        # don't care about the spaces
        ^[\ \t]*
        #main type and sub type or any other value
@@ -256,7 +257,7 @@ headerValue = re.compile(br"""
        [\ \t;]*""", re.IGNORECASE | re.VERBOSE)
 
 
-oldStyleParameter = re.compile(br"""
+oldStyleParameter = re.compile(u"""
      # according to rfc1342, param value can be encoded-word
      # and it's actually very popular, so detect this parameter first
      ^
@@ -286,7 +287,7 @@ oldStyleParameter = re.compile(br"""
 """, re.IGNORECASE | re.VERBOSE)
 
 
-newStyleParameter = re.compile(br"""
+newStyleParameter = re.compile(r"""
      # Here we grab anything that looks like a parameter
      ^
      # skip spaces
@@ -318,4 +319,4 @@ newStyleParameter = re.compile(br"""
 """, re.IGNORECASE | re.VERBOSE)
 
 reverseContinuation = re.compile(
-    b"^(?P<encoded>\*)?(?P<part>\d+\*)?(?P<key>.*)")
+    u"^(?P<encoded>\*)?(?P<part>\d+\*)?(?P<key>.*)")
