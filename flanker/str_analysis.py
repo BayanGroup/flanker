@@ -8,17 +8,23 @@ import yaml
 import redis
 import six
 
-sta_data = {}
+ACTIVE = False
 
-def str_representer(dumper, data):
-    return dumper.represent_scalar('!t', str(data))
+if ACTIVE:
+    sta_data = {}
 
-yaml.add_representer(set, str_representer)
-yaml.add_representer(type, str_representer)
+    def str_representer(dumper, data):
+        return dumper.represent_scalar('!t', str(data))
 
-redis_client = redis.Redis()
+    yaml.add_representer(set, str_representer)
+    yaml.add_representer(type, str_representer)
 
-retype = type(re.compile('A'))
+    try:
+        redis_client = redis.Redis()
+    except:
+        pass
+
+    retype = type(re.compile('A'))
 
 def staf(var):
     pass
@@ -60,7 +66,7 @@ def statype(var):
         return str(type(var))
 
 
-def sta(var):
+def star(var):
     import inspect
 
     class SetEncoder(json.JSONEncoder):
@@ -91,3 +97,8 @@ def sta(var):
 
     redis_client.set('vvs', json.dumps(sta_data, cls=SetEncoder))
 
+
+if ACTIVE:
+    sta = star
+else:
+    sta = staf
