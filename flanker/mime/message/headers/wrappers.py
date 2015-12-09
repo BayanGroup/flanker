@@ -141,7 +141,7 @@ class ContentType(tuple):
                                                       self.params)
 
 
-class MessageId(six.binary_type):
+class MessageId(six.text_type):
 
     RE_ID = re.compile(u"<([^<>]+)>", re.I)
     MIN_LENGTH = 5
@@ -149,7 +149,7 @@ class MessageId(six.binary_type):
 
     def __new__(cls, *args, **kw):
         sta(args)  # {u'(uc/a)': 95}
-        return six.binary_type.__new__(cls, *args, **kw)
+        return six.text_type.__new__(cls, *args, **kw)
 
     def __clean(self):
         sta(self)  # {u'str/a': 164}
@@ -162,7 +162,7 @@ class MessageId(six.binary_type):
         if isinstance(other, MessageId):
             return self.__clean() == other.__clean()
         else:
-            return self.__clean() == six.binary_type(other)
+            return self.__clean() == six.text_type(other)
 
     @classmethod
     def from_string(cls, string):
