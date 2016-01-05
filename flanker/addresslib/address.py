@@ -399,7 +399,7 @@ class EmailAddress(Address):
         'John Smith <john@smith.com>'
         """
         # sta(self.full_spec())  # OK {}
-        return self.full_spec()
+        return self.full_spec().decode('ascii')
 
     def __str__(self):
         """
@@ -538,7 +538,7 @@ class UrlAddress(Address):
         return self.address if isinstance(self.address, six.text_type) else self.address.decode('idna')
 
     def __repr__(self):
-        return self.address
+        return self.address.decode('utf-8')
 
     def __eq__(self, other):
         "Allows comparison of two URLs"
@@ -596,7 +596,7 @@ class AddressList(object):
         return set(self.container) == set(other.container)
 
     def __repr__(self):
-        return b''.join([b'[', self.full_spec(), b']'])
+        return ''.join(['[', self.full_spec().decode('utf-8'), ']'])
 
     def __add__(self, other):
         """
