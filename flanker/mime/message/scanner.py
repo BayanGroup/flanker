@@ -432,7 +432,7 @@ def _grab_newline(position, string, direction):
     while 0 < position < len(string):
         if string[position:position+1] == b'\n':
             if direction < 0:
-                if position - 1 > 0 and string[position-1] == b'\r':
+                if position - 1 > 0 and string[position-1:position] == b'\r':
                     return position - 1
             return position
         position += direction
