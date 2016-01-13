@@ -1,0 +1,16 @@
+Mime-Version: 1.0
+Content-Type: multipart/alternative; boundary="24f7fd037d4449b69af6cad326b617a5"
+
+--24f7fd037d4449b69af6cad326b617a5
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="ascii"
+Mime-Version: 1.0
+
+out of inner, in mixed
+--24f7fd037d4449b69af6cad326b617a5
+Content-Transfer-Encoding: 7bit
+Content-Type: text/html; charset="ascii"
+Mime-Version: 1.0
+
+<p>out of inner, in mixed</p>
+--24f7fd037d4449b69af6cad326b617a5--

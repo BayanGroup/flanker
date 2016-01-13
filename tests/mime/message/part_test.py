@@ -11,7 +11,7 @@ from flanker.mime.message.errors import EncodingError, DecodingError
 from flanker.mime.message.part import encode_transfer_encoding
 from tests import (BILINGUAL, BZ2_ATTACHMENT, ENCLOSED, TORTURE, TORTURE_PART,
                    ENCLOSED_BROKEN_ENCODING, EIGHT_BIT, QUOTED_PRINTABLE,
-                   TEXT_ONLY, ENCLOSED_BROKEN_BODY, RUSSIAN_ATTACH_YAHOO,
+                   UNICODE_BODY, TEXT_ONLY, ENCLOSED_BROKEN_BODY, RUSSIAN_ATTACH_YAHOO,
                    MAILGUN_PIC, MAILGUN_PNG, MULTIPART, IPHONE,
                    SPAM_BROKEN_CTYPE, BOUNCE, NDN, NO_CTYPE, RELATIVE,
                    MULTI_RECEIVED_HEADERS, OUTLOOK_EXPRESS)
@@ -620,3 +620,12 @@ def test_encode_transfer_encoding():
     encoded_body = encode_transfer_encoding('base64', body)
     # according to  RFC 5322 line "SHOULD be no more than 78 characters"
     assert_less(max([len(l) for l in encoded_body.splitlines()]), 79)
+
+
+from flanker.mime import from_string
+
+
+def unicode_quoted_printable_body_test():
+    m = from_string(UNICODE_BODY)
+    assert('ج' in m.parts[1].body)
+

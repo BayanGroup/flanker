@@ -14,6 +14,11 @@ from six.moves import zip
 C = ContentType
 B = Boundary
 
+def simple_scan_test():
+    message = scan(SIMPLE_2PART)
+    eq_('out of inner, in mixed', message.parts[0].body)
+    eq_('<p>out of inner, in mixed</p>', message.parts[1].body)
+
 
 def no_ctype_headers_and_and_boundaries_test():
     """We are ok, when there is no content type and boundaries"""

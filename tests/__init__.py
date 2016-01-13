@@ -39,6 +39,8 @@ BILINGUAL = open(fixture_file("messages/bilingual-simple.eml"), 'rb').read()
 RELATIVE = open(fixture_file("messages/relative.eml"), 'rb').read()
 IPHONE = open(fixture_file("messages/iphone.eml"), 'rb').read()
 
+SIMPLE_2PART = open(fixture_file("messages/simple-2part.eml"), 'rb').read()
+UNICODE_BODY = open(fixture_file("messages/unicode-body.eml"), 'rb').read()
 MULTIPART = open(fixture_file("messages/multipart.eml"), 'rb').read()
 FROM_ENCODING = open(fixture_file("messages/from-encoding.eml"), 'rb').read()
 NO_CTYPE = open(fixture_file("messages/no-ctype.eml"), 'rb').read()

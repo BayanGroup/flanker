@@ -603,7 +603,7 @@ def decode_transfer_encoding(encoding, body):
     if encoding == 'base64':
         return base64.b64decode(body)
     elif encoding == 'quoted-printable':
-        return email.quoprimime.body_decode(body.decode('iso-8859-1'))
+        return email.quoprimime.body_decode(body.decode('iso-8859-1')).encode('iso-8859-1') # walkaround for email.quoprimime accept type
     else:
         return body
 
