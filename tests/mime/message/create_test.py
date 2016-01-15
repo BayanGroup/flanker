@@ -307,3 +307,9 @@ def create_newlines_in_headers_test():
     text = create.from_string(text.to_string())
     eq_('Hello,newline', text.headers[b'Subject'])
     eq_(u'Превед, медвед!', text.headers[b'To'])
+
+
+def unicode_quoted_printable_body_test():
+    m = create.from_string(UNICODE_BODY)
+    assert('ج' in m.parts[1].body)
+

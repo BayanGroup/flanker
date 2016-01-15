@@ -622,10 +622,3 @@ def test_encode_transfer_encoding():
     assert_less(max([len(l) for l in encoded_body.splitlines()]), 79)
 
 
-from flanker.mime import from_string
-
-
-def unicode_quoted_printable_body_test():
-    m = from_string(UNICODE_BODY)
-    assert('ج' in m.parts[1].body)
-
