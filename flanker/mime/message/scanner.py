@@ -4,7 +4,7 @@ from collections import deque
 from io import BytesIO
 import sys
 
-from flanker import ASCII_FLAG
+from flanker import RE_ASCII_FLAG
 from flanker.mime.message.headers import parsing, is_empty, ContentType
 from flanker.mime.message.part import MimePart, Stream
 from flanker.mime.message.errors import DecodingError
@@ -385,7 +385,7 @@ _RE_TOKENIZER = re.compile(
         ^(\r\n|\n)
     )
     """,
-    re.IGNORECASE | re.MULTILINE | re.VERBOSE | ASCII_FLAG)
+    re.IGNORECASE | re.MULTILINE | re.VERBOSE | RE_ASCII_FLAG)
 
 
 _CTYPE = 'ctype'

@@ -1,6 +1,7 @@
 import re
 
+# re.ASCII_FLAG alternative for both python 2 and python 3
 try:
-    ASCII_FLAG = re.ASCII
+    RE_ASCII_FLAG = re.ASCII
 except AttributeError:
-    ASCII_FLAG = 0
+    RE_ASCII_FLAG = 0 #  python 2

@@ -70,7 +70,3 @@ from flanker.mime.message.fallback.create import from_string as recover
 from flanker.mime.message.utils import python_message_to_string
 from flanker.mime.message.headers.parametrized import fix_content_type
 
-try:
-    ASCII_FLAG = re.ASCII
-except AttributeError:
-    ASCII_FLAG = 0

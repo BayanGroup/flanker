@@ -9,8 +9,9 @@ compiled regular expressions or strings.
 from __future__ import absolute_import
 
 import re
-from flanker.addresslib import ASCII_FLAG
 import six
+
+from flanker import RE_ASCII_FLAG
 
 
 LBRACKET   = b'<'
@@ -20,15 +21,15 @@ DQUOTE     = b'"'
 
 BAD_DOMAIN = re.compile(br'''                                    # start or end
                         ^-|-$                                   # with -
-                        ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)
+                        ''', re.MULTILINE | re.VERBOSE | RE_ASCII_FLAG)
 
 DELIMITER  = re.compile(br'''
                         [,;][,;\s]*                             # delimiter
-                        ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)
+                        ''', re.MULTILINE | re.VERBOSE | RE_ASCII_FLAG)
 
 WHITESPACE = re.compile(br'''
                         (\ |\t)+                                # whitespace
-                        ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)
+                        ''', re.MULTILINE | re.VERBOSE | RE_ASCII_FLAG)
 
 UNI_WHITE  = re.compile(u'''
                         [
@@ -40,16 +41,16 @@ UNI_WHITE  = re.compile(u'''
 
 RELAX_ATOM = re.compile(br'''
                         ([^\s<>;,"]+)
-                        ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)
+                        ''', re.MULTILINE | re.VERBOSE | RE_ASCII_FLAG)
 
 ATOM       = re.compile(br'''
                         [A-Za-z0-9!#$%&'*+\-/=?^_`{|}~]+        # atext
-                        ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)
+                        ''', re.MULTILINE | re.VERBOSE | RE_ASCII_FLAG)
 
 DOT_ATOM   = re.compile(br'''
                         [A-Za-z0-9!#$%&'*+\-/=?^_`{|}~]+        # atext
                         (\.[A-Za-z0-9!#$%&'*+\-/=?^_`{|}~]+)*   # (dot atext)*
-                        ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)
+                        ''', re.MULTILINE | re.VERBOSE | RE_ASCII_FLAG)
 
 UNI_ATOM = re.compile(u'''
                         ([^\s<>;,"]+)
@@ -69,12 +70,12 @@ QSTRING    = re.compile(br'''
                         \\[\x21-\x7e\t\ ]))*                    # quoted-pair
                         \s*                                     # whitespace
                         "                                       # dquote
-                        ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)
+                        ''', re.MULTILINE | re.VERBOSE | RE_ASCII_FLAG)
 
 URL        = re.compile(br'''
                         (?:http|https)://
                         [^\s<>{}|\^~\[\]`;,]+
-                        ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)
+                        ''', re.MULTILINE | re.VERBOSE | RE_ASCII_FLAG)
 
 UNI_URL        = re.compile(u'''
                         (?:http|https)://
@@ -127,7 +128,7 @@ class TokenStream(object):
 
         # convert bytes pattern to unicode when matching against a unicode stream
         if isinstance(token.pattern, six.binary_type) and isinstance(self.stream, six.text_type):
-            token = re.compile(token.pattern.decode('iso-8859-1'), token.flags | ASCII_FLAG)
+            token = re.compile(token.pattern.decode('iso-8859-1'), token.flags | RE_ASCII_FLAG)
 
         # sta((token, self.stream)) # {u'(re/b-, str/a)': 101863, u'(re/u-, uc)': 3369, u'(re/u-, uc/a)': 65700, u'(re/uu, uc)': 2305, u'(re/uu, uc/a)': 39106}
         # match a pattern
