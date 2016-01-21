@@ -169,7 +169,8 @@ class MessageId(six.text_type):
         sta(string)  # {u'uc/a': 86}
         if not isinstance(string, (str, six.text_type)):
             return None
-        return list(cls.scan(string))
+        for message_id in cls.scan(string):
+            return message_id
 
     @classmethod
     def generate(cls, domain=None):

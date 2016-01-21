@@ -262,9 +262,9 @@ class RichPartMixin(object):
         """
         refs = list(MessageId.scan(self.headers.get(b'References', '')))
         if not refs:
-            reply = MessageId.from_string(self.headers.get(b'In-Reply-To', ''))
-            if reply:
-                refs.append(reply[0])
+            in_reply_to = MessageId.from_string(self.headers.get(b'In-Reply-To', ''))
+            if in_reply_to:
+                refs.append(in_reply_to)
         return refs
 
     @property
