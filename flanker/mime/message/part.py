@@ -658,7 +658,7 @@ def encode_transfer_encoding(encoding, body):
     if encoding == 'quoted-printable':
         return email.quoprimime.body_encode(body.decode('iso-8859-1')).encode('iso-8859-1')
     elif encoding == 'base64':
-        return base64.b64encode(body)
+        return  email.encoders._bencode(body)
     else:
         return body
 
