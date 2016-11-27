@@ -30,7 +30,7 @@ def unfold(value):
     if isinstance(value, six.binary_type):
         return re.sub(BYTES_foldingWhiteSpace, br"\2", value)
     else:
-        return re.sub(UNICODE_foldingWhiteSpace, u"\2", value)
+        return re.sub(UNICODE_foldingWhiteSpace, u"\\2", value)
 
 
 def decode(header):
