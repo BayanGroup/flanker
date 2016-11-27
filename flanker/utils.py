@@ -3,21 +3,18 @@
 Utility functions and classes used by flanker.
 """
 from __future__ import absolute_import
-import logging
 import re
 
 import chardet as cchardet
 import chardet
 import six
 
-#from flanker.mime.message import errors
+from flanker.mime.message import errors
 from functools import wraps
 
 from flanker.str_analysis import sta
 from six.moves import map
 from six.moves import range
-
-log = logging.getLogger(__name__)
 
 
 def _guess_and_convert(value):
@@ -29,9 +26,8 @@ def _guess_and_convert(value):
     """
     sta(value)  # {u'str': 10}
     try:
-        return _guess_and_convert_with(value)
+        return _guess_and_convert_with(value, detector=cchardet)
     except:
-        log.warn("Fallback to chardet")
         return _guess_and_convert_with(value, detector=chardet)
 
 
@@ -46,7 +42,7 @@ def _guess_and_convert_with(value, detector=cchardet):
     charset = detector.detect(value)
 
     if not charset["encoding"]:
-        raise Exception("Failed to guess encoding for %s" % (value,))
+        raise errors.DecodingError("Failed to guess encoding")
 
     try:
         value = value.decode(charset["encoding"], "replace")
@@ -61,16 +57,9 @@ def _make_unicode(value, charset=None):
     if isinstance(value, six.text_type):
         return value
 
+    charset = charset or "utf-8"
     try:
-        # if charset is provided, try decoding with it
-        if charset:
-            value = value.decode(charset, "strict")
-
-        # if charset is not provided, assume UTF-8
-        else:
-            value = value.decode("utf-8", "strict")
-
-    # last resort: try to guess the encoding
+        value = value.decode(charset, "strict")
     except (UnicodeError, LookupError):
         value = _guess_and_convert(value)
 
@@ -79,8 +68,7 @@ def _make_unicode(value, charset=None):
 
 def to_unicode(value, charset=None):
     # sta(value)  # OK {u'str': 49, u'str/a': 80}
-    value = _make_unicode(value, charset)
-    return six.text_type(value.encode("utf-8", "strict"), "utf-8", "strict")
+    return _make_unicode(value, charset)
 
 
 def to_utf8(value, charset=None):
